@@ -29,6 +29,18 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    }
 }
 
 
@@ -107,16 +119,20 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-
-
-    // create a triangle and copy it to GPU memory
+    // set up data that we will be rendering
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f, 
          0.5f, -0.5f, 0.0f,
-         0.0f, 0.5f, 0.0f
+        -0.5f, -0.5f, 0.0f, 
+        -0.5f,  0.5f, 0.0f 
     };
 
-    // bind vertex array object (stores vertex attribute locations and which VBO to use)
+    unsigned int indices[] = { // indices for the triangles that make the square above
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
+    };
+
+    // bind vertex array object (stores vertex attribute locations and which VBO/EBO to use)
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -125,6 +141,13 @@ int main()
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // create element buffer object on the GPU
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // tell OpenGL how the vertex data maps to the vertex shader atttributes
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -140,7 +163,8 @@ int main()
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0); // unbind
 
         // check events and swap back buffer to display it in the window
         glfwSwapBuffers(window);
