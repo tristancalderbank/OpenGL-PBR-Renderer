@@ -1,6 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "lib/stb_image.h"
 #include "shader.h"
 
@@ -34,8 +37,6 @@ void processInput(GLFWwindow* window) {
     }
 }
 
-// at Applying textures
-// in https://learnopengl.com/Getting-started/Textures
 int main()
 {
     glfwInit();
@@ -177,6 +178,14 @@ int main()
 
         // activate our shader program
         shader.use();
+
+        // matrix transforms
+        glm::mat4 transformation = glm::mat4(1.0f);
+        transformation = glm::translate(transformation, glm::vec3(0.5f, -0.5f, 0.0f));
+        transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        shader.setMat4("transform", transformation);; // pass it to shader
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\trist\source\repos\TinyEngine\lib\glad\include;C:\Users\trist\source\repos\TinyEngine\lib\glfw3\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\trist\source\repos\TinyEngine\lib\glm\include;C:\Users\trist\source\repos\TinyEngine\lib\glad\include;C:\Users\trist\source\repos\TinyEngine\lib\glfw3\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\trist\source\repos\TinyEngine\lib\glfw3\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\Desktop\glad\src\glad.c" />
+    <ClCompile Include="lib\stb_image.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <None Include="shaders\shader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\stb_image.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
