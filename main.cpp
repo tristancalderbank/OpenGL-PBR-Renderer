@@ -7,11 +7,22 @@
 #include "lib/stb_image.h"
 #include "shader.h"
 
+// shaders
+std::string vertexShaderPath = "shaders/shader.vert";
+std::string fragmentShaderPath = "shaders/shader.frag";
+
+// viewport
 const int INITIAL_VIEWPORT_WIDTH = 1600;
 const int INITIAL_VIEWPORT_HEIGHT = 1200;
 
-std::string vertexShaderPath = "shaders/shader.vert";
-std::string fragmentShaderPath = "shaders/shader.frag";
+// camera
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+// time
+float frameTimeDelta = 0.0f; // time between current frame and last frame
+float lastFrameTime = 0.0f; // time of last frame
 
 // invoked on window resizes, update gl window to the current size
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
@@ -20,21 +31,28 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 // handle input such as keyboard
 void processInput(GLFWwindow* window) {
+    float cameraSpeed = 2.5f * frameTimeDelta;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * glm::cross(cameraFront, cameraUp);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * glm::cross(cameraFront, cameraUp);
+    }
+
 }
 
 int main()
@@ -209,16 +227,16 @@ int main()
 
     // common transforms
 
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
     glm::mat4 projection;
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-    shader.setMat4("view", view);
     shader.setMat4("projection", projection);
 
     while (!glfwWindowShouldClose(window)) {
+        // calculate frame time
+        float currentTime = glfwGetTime();
+        frameTimeDelta = lastFrameTime - currentTime;
+        lastFrameTime = currentTime;
+
         // input
         processInput(window);
 
@@ -230,14 +248,13 @@ int main()
         shader.use();
         glBindVertexArray(VAO);
 
-        // matrix transforms
-        for (int i = 0; i < 10; i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-            shader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        glm::mat4 model = glm::mat4(1.0f);
+        shader.setMat4("model", model);
+
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        shader.setMat4("view", view);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // check events and swap back buffer to display it in the window
         glfwSwapBuffers(window);
