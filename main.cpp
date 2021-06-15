@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "lib/stb_image.h"
 #include "shader.h"
+#include "camera.h"
 
 // shaders
 std::string vertexShaderPath = "shaders/shader.vert";
@@ -16,9 +17,11 @@ const int INITIAL_VIEWPORT_WIDTH = 1600;
 const int INITIAL_VIEWPORT_HEIGHT = 1200;
 
 // camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraInitialPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+float cameraInitialYaw = 0;
+float cameraInitialPitch = 0;
+Camera camera(cameraUp, cameraInitialPosition, cameraInitialYaw, cameraInitialPitch);
 
 // time
 float frameTimeDelta = 0.0f; // time between current frame and last frame
@@ -31,28 +34,13 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 
 // handle input such as keyboard
 void processInput(GLFWwindow* window) {
-    float cameraSpeed = 2.5f * frameTimeDelta;
-
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+}
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * glm::cross(cameraFront, cameraUp);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * glm::cross(cameraFront, cameraUp);
-    }
-
+void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
+    camera.processMouseMovement(window, xPos, yPos);
 }
 
 int main()
@@ -85,7 +73,10 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
     
+    // GLFW options
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, processMouseMovement);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // don't show cursor on the window
 
     Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
 
@@ -239,6 +230,7 @@ int main()
 
         // input
         processInput(window);
+        camera.processKeyboard(window, frameTimeDelta);
 
         // rendering commands
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -248,13 +240,14 @@ int main()
         shader.use();
         glBindVertexArray(VAO);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        shader.setMat4("model", model);
+        shader.setMat4("view", camera.getViewportMatrix());
 
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        shader.setMat4("view", view);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 10; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // check events and swap back buffer to display it in the window
         glfwSwapBuffers(window);
