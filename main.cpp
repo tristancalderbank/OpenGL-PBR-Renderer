@@ -4,7 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "lib/stb_image.h"
+#include "lib/stb_image/stb_image.h"
+#include "lib/imgui/imgui.h"
+#include "lib/imgui/imgui_impl_glfw.h"
+#include "lib/imgui/imgui_impl_opengl3.h"
 #include "shader.h"
 #include "camera.h"
 
@@ -13,8 +16,8 @@ std::string vertexShaderPath = "shaders/shader.vert";
 std::string fragmentShaderPath = "shaders/shader.frag";
 
 // viewport
-const int INITIAL_VIEWPORT_WIDTH = 1600;
-const int INITIAL_VIEWPORT_HEIGHT = 1200;
+const int INITIAL_VIEWPORT_WIDTH = 3200;
+const int INITIAL_VIEWPORT_HEIGHT = 2400;
 
 // camera
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -32,15 +35,23 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+bool mouseCameraEnabled = true;
+
 // handle input such as keyboard
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+        mouseCameraEnabled = !mouseCameraEnabled;
+    }
 }
 
 void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
-    camera.processMouseMovement(window, xPos, yPos);
+    if (mouseCameraEnabled) {
+        camera.processMouseMovement(window, xPos, yPos);
+    }
 }
 
 int main()
@@ -48,6 +59,7 @@ int main()
     glfwInit();
 
     // see window creation options here: https://www.glfw.org/docs/latest/window.html#window_hints
+    const char* glslVersion = "#version 330";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // core profile doesn't include unneeded backwards compat features
@@ -76,9 +88,20 @@ int main()
     // GLFW options
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, processMouseMovement);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // don't show cursor on the window
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.FontGlobalScale = 2.0f;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glslVersion);
 
     // set up data that we will be rendering
 
@@ -222,14 +245,34 @@ int main()
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     shader.setMat4("projection", projection);
 
+    bool showDemoWindow = true;
+
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time
         float currentTime = glfwGetTime();
         frameTimeDelta = lastFrameTime - currentTime;
         lastFrameTime = currentTime;
 
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow(&showDemoWindow);
+
+        ImGuiIO& io = ImGui::GetIO();
+
+        if (mouseCameraEnabled) {
+            io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_NoMouse;
+        }
+        else {
+            io.ConfigFlags = io.ConfigFlags & !ImGuiConfigFlags_NoMouse;
+        }
+        
+
         // input
         processInput(window);
+        glfwSetInputMode(window, GLFW_CURSOR, mouseCameraEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL); // don't show cursor on the windo
         camera.processKeyboard(window, frameTimeDelta);
 
         // rendering commands
@@ -249,11 +292,16 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // draw ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // check events and swap back buffer to display it in the window
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
