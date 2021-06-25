@@ -1,11 +1,15 @@
 #version 330 core
 
 out vec4 FragColor;
-in vec2 texCoord;
+in vec3 normal;
+in vec2 textureCoordinates;
 
-uniform sampler2D texture1;
-uniform sampler2D texture2;
+struct Material {
+  sampler2D textureDiffuse0;
+};
+
+uniform Material material;
 
 void main() {
-	FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
+	FragColor = texture(material.textureDiffuse0, textureCoordinates);
 };
