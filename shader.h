@@ -118,4 +118,10 @@ public:
 	void setMat4(const std::string& name, glm::mat4 &value) const {
 		glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &value[0][0]);
 	}
+
+	void setModelViewProjectionMatrices(glm::mat4& model, glm::mat4& view, glm::mat4& projection) {
+		setMat4("model", model);
+		setMat4("view", view);
+		setMat4("projection", projection);
+	}
 };
