@@ -34,25 +34,13 @@ public:
 		init();
 	}
 	void Draw(Shader& shader) {
-		unsigned int diffuseNumber = 1;
-		unsigned int specularNumber = 1;
 
 		for (unsigned int i = 0; i < textures.size(); i++) {
 			glActiveTexture(GL_TEXTURE0 + i);
 
-			std::string number;
 			std::string name = textures[i].type;
 
-			if (name == "textureDiffuse") {
-				number = std::to_string(diffuseNumber);
-				diffuseNumber++;
-			}
-			else if (name == "textureSpecular") {
-				number = std::to_string(specularNumber);
-				specularNumber++;
-			}
-
-			shader.setFloat(("material." + name + number).c_str(), i);
+			shader.setInt(("material." + name).c_str(), i);
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		}
 

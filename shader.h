@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -114,6 +115,14 @@ public:
 	void setFloat(const std::string& name, float value) const {
 		glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 	};
+
+	void setVec3(const std::string& name, glm::vec3& value) const {
+		glUniform3f(glGetUniformLocation(id, name.c_str()), value[0], value[1], value[2]);
+	}
+
+	void setVec3Array(const std::string& name, std::vector<glm::vec3> values) {
+		glUniform3fv(glGetUniformLocation(id, name.c_str()), values.size(), &values[0][0]);
+	}
 
 	void setMat4(const std::string& name, glm::mat4 &value) const {
 		glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &value[0][0]);

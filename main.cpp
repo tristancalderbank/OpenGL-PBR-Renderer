@@ -63,7 +63,7 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-
+// GOAL: sphere.glb is in resources directory, render that, you will need to rework the texture uniform sampler setting code
 int main()
 {
     glfwInit();
@@ -119,7 +119,23 @@ int main()
 
     // Model
     Skybox skybox("resources/skybox");
-    Model backpack("resources/backpack/backpack.obj");
+    //Model backpack("resources/backpack/backpack.obj");
+    Model sphere("resources/sphere/sphere.gltf");
+
+    // Lights
+    std::vector<glm::vec3> lightPositions = {
+        glm::vec3(-2.0f, 0.0f, 1.0f),
+        glm::vec3(-1.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f),
+        glm::vec3(1.0f, 0.0f, 1.0f),
+    };
+
+    std::vector<glm::vec3> lightColors = {
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f),
+    };
 
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time
@@ -158,6 +174,7 @@ int main()
         processInput(window);
         glfwSetInputMode(window, GLFW_CURSOR, mouseCameraEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL); // don't show cursor on the windo
         camera.processKeyboard(window, frameTimeDelta);
+        glm::vec3 cameraPosition = camera.getPosition();
 
         // rendering commands
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -173,7 +190,15 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(scale, scale, scale));
         shader.setModelViewProjectionMatrices(model, view, projection);
-        backpack.Draw(shader);
+
+        // sphere
+        shader.setFloat("ambientOcclusion", 0.5f);
+        shader.setVec3Array("lightPositions", lightPositions);
+        shader.setVec3Array("lightColors", lightColors);
+        shader.setVec3("cameraPosition", cameraPosition);
+
+        sphere.Draw(shader);
+
 
         // skybox (draw this last to avoid running fragment shader in places where objects are present
         skyboxShader.use();

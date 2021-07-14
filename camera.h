@@ -36,6 +36,10 @@ private:
 public:
 	Camera(glm::vec3 up, glm::vec3 position, float yaw, float pitch) : up(up), position(position), yaw(yaw), pitch(pitch) {}
 
+    glm::vec3 getPosition() {
+        return position;
+    }
+
 	glm::mat4 getViewMatrix() {
 		return glm::lookAt(position, position + getDirection(), up);
 	}

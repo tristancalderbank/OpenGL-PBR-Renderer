@@ -10,7 +10,9 @@ in vec3 normal;
 in vec2 textureCoordinates;
 
 struct Material {
-  sampler2D textureDiffuse0;
+  sampler2D albedo;
+  sampler2D metallicRoughness;
+  sampler2D normal;
 };
 
 uniform Material material;
@@ -22,9 +24,6 @@ uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
 // PBR 
-uniform vec3 albedo; // the diffuse color
-uniform float metallic;
-uniform float roughness;
 uniform float ambientOcclusion;
 
 // Fresnel function (Fresnel-Schlick approximation)
@@ -82,6 +81,12 @@ float geometrySmith(vec3 n, vec3 v, vec3 l, float roughness) {
 }
 
 void main() {
+	// get all the texture values
+	vec3 albedo = texture(material.albedo, textureCoordinates).rgb;
+	vec2 metallicRoughness = texture(material.metallicRoughness, textureCoordinates).rg;
+	float metallic = metallicRoughness.r;
+	float roughness = metallicRoughness.g;
+	
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
 

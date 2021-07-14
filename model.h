@@ -3,6 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/pbrmaterial.h>
 #include "lib/stb_image/stb_image.h"
 
 #include <map>
@@ -107,47 +108,55 @@ private:
 		if (mesh->mMaterialIndex >= 0) {
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-			std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "textureDiffuse");
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+			// albedo
+			if (material->GetTextureCount(aiTextureType_DIFFUSE)) {
+				Texture albedo = loadMaterialTexture(material, aiTextureType_DIFFUSE, "albedo");
+				textures.emplace_back(albedo);
+			}
 
-			std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "textureSpecular");
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+			// metallicRoughness (in gltf 2.0 they are combined in one texture)
+			if (material->GetTextureCount(aiTextureType_UNKNOWN)) {
+				// defined here in assimp https://github.com/assimp/assimp/blob/master/include/assimp/pbrmaterial.h#L57
+				Texture metallicRoughness = loadMaterialTexture(material, aiTextureType_UNKNOWN, "metallicRoughness");
+				textures.emplace_back(metallicRoughness);
+			}
+
+			// normal
+			if (material->GetTextureCount(aiTextureType_NORMALS)) {
+				Texture normal = loadMaterialTexture(material, aiTextureType_NORMALS, "normal");
+				textures.emplace_back(normal);
+			}
 		}
 
 		return Mesh(vertices, indices, textures);
 	}
 
-	std::vector<Texture> loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName) {
-		std::vector<Texture> textures;
+	// loads the first texture of given type
+	Texture loadMaterialTexture(aiMaterial* material, aiTextureType type, std::string typeName) {
+		aiString path;
+		material->GetTexture(type, 0, &path);
 
-		for (unsigned int i = 0; i < material->GetTextureCount(type); i++) {
-			aiString path;
-			material->GetTexture(type, i, &path);
-
-			// check if we already have it loaded and use that if so
-			auto iterator = texturesLoaded.find(std::string(path.C_Str()));
-			if (iterator != texturesLoaded.end()) {
-				textures.push_back(iterator->second);
-				continue;
-			}
-
-			Texture texture;
-
-			std::cout << "Process material: " << path.C_Str() << std::endl;
-			
-			texture.id = textureFromFile(path.C_Str(), directory);
-			texture.type = typeName;
-			texture.path = path.C_Str();
-			textures.push_back(texture);
-			
-			// cache it for future lookups
-			texturesLoaded.insert(std::pair<std::string, Texture>(path.C_Str(), texture));
+		// check if we already have it loaded and use that if so
+		auto iterator = texturesLoaded.find(std::string(path.C_Str()));
+		if (iterator != texturesLoaded.end()) {
+			return iterator->second;
 		}
 
-		return textures;
+		Texture texture;
+
+		std::cout << "Process material: " << path.C_Str() << std::endl;
+			
+		texture.id = textureFromFile(path.C_Str(), directory, type);
+		texture.type = typeName;
+		texture.path = path.C_Str();
+			
+		// cache it for future lookups
+		texturesLoaded.insert(std::pair<std::string, Texture>(path.C_Str(), texture));
+
+		return texture;
 	}
 
-	unsigned int textureFromFile(const char* fileName, std::string directory) {
+	unsigned int textureFromFile(const char* fileName, std::string directory, aiTextureType type) {
 		int width, height, numChannels;
 
 		std::string relativePath = fileName;
@@ -174,12 +183,28 @@ private:
 			break;
 		}
 
+		GLenum internalFormat = format;
+
+		// account for sRGB textures here
+		// 
+		// diffuse textures are in sRGB space (non-linear)
+		// metallic/roughness/normals are usually in linear
+		// AO depends
+		if (type == aiTextureType_DIFFUSE) {
+			if (internalFormat == GL_RGB) {
+				internalFormat = GL_SRGB;
+			}
+			else if (internalFormat == GL_RGBA) {
+				internalFormat = GL_SRGB_ALPHA;
+			}
+		}
+
 		unsigned int textureId;
 		glGenTextures(1, &textureId);
 		glBindTexture(GL_TEXTURE_2D, textureId);
 
 		// generate the texture
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		// texture wrapping/filtering options
