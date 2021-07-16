@@ -17,6 +17,9 @@
 std::string vertexShaderPath = "shaders/shader.vert";
 std::string fragmentShaderPath = "shaders/shader.frag";
 
+std::string postVertexShaderPath = "shaders/post.vert";
+std::string postFragmentShaderPath = "shaders/post.frag";
+
 std::string skyboxVertexShaderPath = "shaders/skybox.vert";
 std::string skyboxFragmentShaderPath = "shaders/skybox.frag";
 
@@ -64,7 +67,7 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-// GOAL: sphere.glb is in resources directory, render that, you will need to rework the texture uniform sampler setting code
+// GOAL: split out main shader from post-processing shader
 int main()
 {
     glfwInit();
@@ -116,6 +119,7 @@ int main()
 
     // Shader
     Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
+    Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
     // Model
