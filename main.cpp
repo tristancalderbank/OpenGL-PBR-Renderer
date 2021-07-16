@@ -33,7 +33,14 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 glm::vec3 cameraInitialPosition = glm::vec3(0.0f, 0.0f, 3.0f);
 float cameraInitialYaw = 0;
 float cameraInitialPitch = 0;
-Camera camera(cameraUp, cameraInitialPosition, cameraInitialYaw, cameraInitialPitch);
+Camera camera(
+    cameraUp, 
+    cameraInitialPosition, 
+    cameraInitialYaw, 
+    cameraInitialPitch, 
+    INITIAL_VIEWPORT_WIDTH, 
+    INITIAL_VIEWPORT_HEIGHT
+);
 
 // time
 float frameTimeDelta = 0.0f; // time between current frame and last frame
@@ -42,6 +49,7 @@ float lastFrameTime = 0.0f; // time of last frame
 // invoked on window resizes, update gl window to the current size
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    camera.setWindowDimensions(width, height);
 }
 
 bool mouseCameraEnabled = true;

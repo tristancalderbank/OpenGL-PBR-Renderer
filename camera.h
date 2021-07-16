@@ -21,7 +21,7 @@ private:
 
     // projection matrix stuff
     float fov = 45.0f;
-    float aspect[2] = { 800.0f, 600.0f }; // TODO this should be dynamic
+    int windowDimensions[2] = { 800, 600 }; 
     float zNear = 0.1f;
     float zFar = 100.0f;
 
@@ -32,9 +32,28 @@ private:
 
         return glm::normalize(glm::vec3(directionX, directionY, -directionZ));
     }
+
+    float getAspectRatio() {
+        return (float) windowDimensions[0] / windowDimensions[1];
+    }
     
 public:
-	Camera(glm::vec3 up, glm::vec3 position, float yaw, float pitch) : up(up), position(position), yaw(yaw), pitch(pitch) {}
+	Camera(
+        glm::vec3 up, 
+        glm::vec3 position, 
+        float yaw, 
+        float pitch, 
+        int windowWidth, 
+        int windowHeight
+    ) : up(up), position(position), yaw(yaw), pitch(pitch) {
+        windowDimensions[0] = windowWidth;
+        windowDimensions[1] = windowHeight;
+    }
+
+    void setWindowDimensions(int width, int height) {
+        windowDimensions[0] = width;
+        windowDimensions[1] = height;
+    }
 
     glm::vec3 getPosition() {
         return position;
@@ -45,7 +64,7 @@ public:
 	}
 
     glm::mat4 getProjectionMatrix() {
-        glm::mat4 projection = glm::perspective(glm::radians(fov), aspect[0] / aspect[1], zNear, zFar);
+        glm::mat4 projection = glm::perspective(glm::radians(fov), getAspectRatio(), zNear, zFar);
         return projection;
     }
 
@@ -106,6 +125,7 @@ public:
 
             float yawDegrees = glm::degrees(yaw);
             float pitchDegrees = glm::degrees(pitch);
+            float aspectRatio = getAspectRatio();
 
             ImGui::InputFloat("yaw (degrees)", &yawDegrees);
             ImGui::InputFloat("pitch (degrees)", &pitchDegrees);
@@ -114,7 +134,8 @@ public:
 
             ImGui::Text("Projection");
             ImGui::SliderFloat("fov (degrees)", &fov, 0.0f, 180.0f);
-            ImGui::DragFloat2("aspect ratio", aspect, 1.0f, 100.0f, 4000.0f);
+            ImGui::InputInt2("window", windowDimensions);
+            ImGui::InputFloat("aspect ratio", &aspectRatio);
             ImGui::DragFloat("z-plane near", &zNear, 0.01f, 0.0f, 1000.0f);
             ImGui::DragFloat("z-plane far", &zFar, 0.01f, 0.0f, 1000.0f);
         }
