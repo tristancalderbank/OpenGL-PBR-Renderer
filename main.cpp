@@ -21,8 +21,9 @@ std::string skyboxVertexShaderPath = "shaders/skybox.vert";
 std::string skyboxFragmentShaderPath = "shaders/skybox.frag";
 
 // viewport
-const int INITIAL_VIEWPORT_WIDTH = 3200;
-const int INITIAL_VIEWPORT_HEIGHT = 2400;
+const int INITIAL_VIEWPORT_WIDTH = 800;
+const int INITIAL_VIEWPORT_HEIGHT = 600;
+const float IMGUI_FONT_SCALE = 1.0f;
 
 // camera
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -106,7 +107,7 @@ int main()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.FontGlobalScale = 2.0f;
+    io.FontGlobalScale = IMGUI_FONT_SCALE;
 
     ImGui::StyleColorsDark();
 
@@ -124,17 +125,11 @@ int main()
 
     // Lights
     std::vector<glm::vec3> lightPositions = {
-        glm::vec3(-2.0f, 0.0f, 1.0f),
-        glm::vec3(-1.0f, 0.0f, 1.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f),
-        glm::vec3(1.0f, 0.0f, 1.0f),
+        glm::vec3(0.0f, 0.0f, 10.0f)
     };
 
     std::vector<glm::vec3> lightColors = {
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(150.0f, 150.0f, 150.0f)
     };
 
     while (!glfwWindowShouldClose(window)) {

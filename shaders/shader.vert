@@ -6,13 +6,15 @@ layout (location = 2) in vec2 aTextureCoordinates;
 
 out vec3 normal;
 out vec2 textureCoordinates;
+out vec3 worldCoordinates;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
+	worldCoordinates = (model * vec4(aPos, 1.0f)).xyz;
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
 	textureCoordinates = aTextureCoordinates;
-	normal = aNormal;
+	normal = aNormal; 
 };

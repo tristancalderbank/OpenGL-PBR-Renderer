@@ -21,7 +21,7 @@ private:
 
     // projection matrix stuff
     float fov = 45.0f;
-    float aspect[2] = { 800.0f, 600.0f };
+    float aspect[2] = { 800.0f, 600.0f }; // TODO this should be dynamic
     float zNear = 0.1f;
     float zFar = 100.0f;
 
