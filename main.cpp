@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "model.h"
 #include "skybox.h"
+#include "framebuffer.h"
 
 // shaders
 std::string vertexShaderPath = "shaders/shader.vert";
@@ -46,9 +47,13 @@ Camera camera(
 float frameTimeDelta = 0.0f; // time between current frame and last frame
 float lastFrameTime = 0.0f; // time of last frame
 
+// Intermediate buffers
+Framebuffer framebuffer(INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT);
+
 // invoked on window resizes, update gl window to the current size
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    framebuffer.resize(width, height);
     camera.setWindowDimensions(width, height);
 }
 
@@ -124,6 +129,10 @@ int main()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glslVersion);
+
+    // Init framebuffers
+    framebuffer.init();
+
 
     // Shader
     Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
