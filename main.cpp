@@ -13,6 +13,7 @@
 #include "model.h"
 #include "skybox.h"
 #include "framebuffer.h"
+#include "fullscreenquad.h"
 
 // shaders
 std::string vertexShaderPath = "shaders/shader.vert";
@@ -130,7 +131,7 @@ int main()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glslVersion);
 
-    // Init framebuffers
+    // Init any intermediate framebuffers
     framebuffer.init();
 
 
@@ -140,8 +141,8 @@ int main()
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
     // Model
+    FullscreenQuad fullscreenQuad;
     Skybox skybox("resources/skybox");
-    //Model backpack("resources/backpack/backpack.obj");
     Model sphere("resources/sphere/sphere.gltf");
 
     // Lights
@@ -192,16 +193,16 @@ int main()
         camera.processKeyboard(window, frameTimeDelta);
         glm::vec3 cameraPosition = camera.getPosition();
 
-        // rendering commands
+        // Rendering
+        // Main pass
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.getFramebufferHandle());
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // draw our models 
         glm::mat4 projection = camera.getProjectionMatrix();
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 model;
 
-        // backpack
         shader.use();
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(scale, scale, scale));
@@ -215,7 +216,6 @@ int main()
 
         sphere.Draw(shader);
 
-
         // skybox (draw this last to avoid running fragment shader in places where objects are present
         skyboxShader.use();
         model = glm::mat4(1.0f);
@@ -224,7 +224,11 @@ int main()
         skyboxShader.setModelViewProjectionMatrices(model, skyboxView, projection);
         skybox.Draw(shader);
 
-
+        // Post-processing pass
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        postShader.use();
+        fullscreenQuad.Draw(postShader, framebuffer.getColorTextureHandle());
 
         // draw ImGui
         ImGui::Render();

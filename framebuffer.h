@@ -24,7 +24,7 @@ public:
 		// create a color texture
 		glGenTextures(1, &colorTexture);
 		glBindTexture(GL_TEXTURE_2D, colorTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -61,5 +61,13 @@ public:
 		glBindRenderbuffer(GL_RENDERBUFFER, depthStencilRenderbuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
+
+	unsigned int getFramebufferHandle() {
+		return framebuffer;
+	}
+
+	unsigned int getColorTextureHandle() {
+		return colorTexture;
 	}
 };
