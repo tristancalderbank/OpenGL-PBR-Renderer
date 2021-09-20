@@ -1,13 +1,13 @@
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <glfw/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include "lib/stb_image/stb_image.h"
-#include "lib/imgui/imgui.h"
-#include "lib/imgui/imgui_impl_glfw.h"
-#include "lib/imgui/imgui_impl_opengl3.h"
+#include <stb_image/stb_image.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
 #include "shader.h"
 #include "camera.h"
 #include "model.h"
