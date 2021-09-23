@@ -26,8 +26,8 @@ std::string skyboxVertexShaderPath = "shaders/skybox.vert";
 std::string skyboxFragmentShaderPath = "shaders/skybox.frag";
 
 // viewport
-const int INITIAL_VIEWPORT_WIDTH = 800;
-const int INITIAL_VIEWPORT_HEIGHT = 600;
+int INITIAL_VIEWPORT_WIDTH = 800;
+int INITIAL_VIEWPORT_HEIGHT = 600;
 const float IMGUI_FONT_SCALE = 1.0f;
 
 // camera
@@ -81,9 +81,19 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-// GOAL: split out main shader from post-processing shader
-int main()
+/**
+ *
+ * @param argc number of args
+ * @param argv name, viewport_width, viewport_height
+ * @return
+ */
+int main(int argc, const char * argv[])
 {
+    if (argc == 3) {
+        INITIAL_VIEWPORT_WIDTH = std::stoi(argv[1]);
+        INITIAL_VIEWPORT_HEIGHT = std::stoi(argv[2]);
+    }
+
     glfwInit();
 
     // see window creation options here: https://www.glfw.org/docs/latest/window.html#window_hints
