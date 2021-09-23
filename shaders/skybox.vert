@@ -17,4 +17,4 @@ void main() {
 	gl_Position = vec4(position.xy, position.w, position.w); 
 
 	textureCoordinates = aPos; // treat position as a vector for cubemap texture coords
-};
+}

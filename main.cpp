@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -88,6 +88,7 @@ int main()
 
     // see window creation options here: https://www.glfw.org/docs/latest/window.html#window_hints
     const char* glslVersion = "#version 330";
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // core profile doesn't include unneeded backwards compat features

@@ -155,4 +155,4 @@ void main() {
 	vec3 color = ambient + Lo;
 
 	FragColor = vec4(color, 1.0);
-};
+}
