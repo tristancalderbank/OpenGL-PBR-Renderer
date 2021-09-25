@@ -85,11 +85,6 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
  */
 int main(int argc, const char * argv[])
 {
-    if (argc == 3) {
-        INITIAL_VIEWPORT_WIDTH = std::stoi(argv[1]);
-        INITIAL_VIEWPORT_HEIGHT = std::stoi(argv[2]);
-    }
-
     glfwInit();
 
     // see window creation options here: https://www.glfw.org/docs/latest/window.html#window_hints
