@@ -2,6 +2,7 @@ add_library(Engine
         src/camera.cpp
         src/framebuffer.cpp
         src/fullscreenquad.cpp
+        src/hdrtexture.cpp
         src/mesh.cpp
         src/model.cpp
         src/shader.cpp
