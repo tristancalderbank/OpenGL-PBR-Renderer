@@ -13,10 +13,9 @@
 #include "shader.h"
 #include "skybox.h"
 
-// shaders
-std::string vertexShaderPath = "shaders/shader.vert";
-std::string fragmentShaderPath = "shaders/shader.frag";
+#include "hdricube.h"
 
+// shaders
 std::string postVertexShaderPath = "shaders/post.vert";
 std::string postFragmentShaderPath = "shaders/post.frag";
 
@@ -124,25 +123,13 @@ int main(int argc, const char * argv[])
     // stb options
     stbi_set_flip_vertically_on_load(true);
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.FontGlobalScale = IMGUI_FONT_SCALE;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glslVersion);
-
     // Init any intermediate framebuffers
     framebuffer.init();
 
-
     // Shader
-    Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
+    Shader hdriShader("shaders/hdricube.vert", "shaders/hdricube.frag");
 
     // Model
     FullscreenQuad fullscreenQuad;
@@ -159,8 +146,7 @@ int main(int argc, const char * argv[])
     };
 
     // start IBL stuff
-
-    HDRTexture hdrTextureLoft = HDRTexture("resources/hdr/newport_loft.hdr");
+    HDRICube hdriCube = HDRICube("resources/hdr/newport_loft.hdr");
 
     // end IBL stuff
 
@@ -169,33 +155,6 @@ int main(int argc, const char * argv[])
         float currentTime = glfwGetTime();
         frameTimeDelta = lastFrameTime - currentTime;
         lastFrameTime = currentTime;
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::Begin("TinyEngine");                          // Create a window called "Hello, world!" and append into it.
-        ImGui::CollapsingHeader("General");
-        ImGui::Text("Average FPS %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        camera.drawDebugPanel();
-
-        ImGui::CollapsingHeader("Model");
-        float scale = 1.0;
-        ImGui::SliderFloat("scale", &scale, 0.0, 100);
-
-        ImGui::End();
-
-        // ImGui::ShowDemoWindow();
-
-        ImGuiIO& io = ImGui::GetIO();
-
-        if (mouseCameraEnabled) {
-            io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_NoMouse;
-        }
-        else {
-            io.ConfigFlags = io.ConfigFlags & !ImGuiConfigFlags_NoMouse;
-        }
 
         // input
         processInput(window);
@@ -213,36 +172,18 @@ int main(int argc, const char * argv[])
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 model;
 
-        shader.use();
         model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(scale, scale, scale));
-        shader.setModelViewProjectionMatrices(model, view, projection);
 
-        // sphere
-        shader.setFloat("ambientOcclusion", 0.5f);
-        shader.setVec3Array("lightPositions", lightPositions);
-        shader.setVec3Array("lightColors", lightColors);
-        shader.setVec3("cameraPosition", cameraPosition);
-
-        sphere.Draw(shader);
-
-        // skybox (draw this last to avoid running fragment shader in places where objects are present
-        skyboxShader.use();
-        model = glm::mat4(1.0f);
-        glm::mat4 skyboxView = glm::mat4(glm::mat3(view)); // remove translation so skybox is always surrounding camera
-
-        skyboxShader.setModelViewProjectionMatrices(model, skyboxView, projection);
-        skybox.Draw(shader);
+        // cube
+        hdriShader.use();
+        hdriShader.setModelViewProjectionMatrices(model, view, projection);
+        hdriCube.Draw(hdriShader);
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         postShader.use();
         fullscreenQuad.Draw(postShader, framebuffer.getColorTextureHandle());
-
-        // draw ImGui
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // check events and swap back buffer to display it in the window
         glfwSwapBuffers(window);
