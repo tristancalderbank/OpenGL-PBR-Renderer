@@ -94,7 +94,7 @@ int main(int argc, const char * argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // core profile doesn't include unneeded backwards compat features
 
-    GLFWwindow* window = glfwCreateWindow(INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT, "TinyEngine", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT, "NanoEngine", NULL, NULL);
 
     if (window == NULL) {
         std::cout << "Failed to create GLFW window!" << std::endl;
@@ -167,7 +167,7 @@ int main(int argc, const char * argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("TinyEngine");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("NanoEngine");                          // Create a window called "Hello, world!" and append into it.
         ImGui::CollapsingHeader("General");
         ImGui::Text("Average FPS %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         camera.drawDebugPanel();
