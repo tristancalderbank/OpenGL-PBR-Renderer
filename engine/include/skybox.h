@@ -13,7 +13,17 @@ const unsigned int SKYBOX_CUBE_NUM_TRIANGLES = 36;
 class Skybox {
 
 public:
+    /**
+     * Create a skybox by loading 6 cube face textures.
+     * @param textureDirectoryPath
+     */
 	Skybox(std::string textureDirectoryPath);
+
+	/**
+	 * Create a skybox from an existing cubemap texture.
+	 * @param textureId
+	 */
+    Skybox(unsigned int textureId);
     void Draw(Shader &shader);
 
 private:

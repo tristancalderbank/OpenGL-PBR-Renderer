@@ -5,6 +5,10 @@ Skybox::Skybox(std::string textureDirectoryPath) {
     loadVertexData();
 }
 
+Skybox::Skybox(unsigned int textureId) : textureId(textureId) {
+    loadVertexData();
+}
+
 void
 Skybox::Draw(Shader &shader) {
     shader.setInt("skybox", 0); // set skybox sampler to slot 0

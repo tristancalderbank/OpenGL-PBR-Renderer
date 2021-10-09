@@ -1,4 +1,5 @@
 add_executable(Ibl
+        cubemapframebuffer.cpp
         main.cpp
         hdricube.cpp
         )

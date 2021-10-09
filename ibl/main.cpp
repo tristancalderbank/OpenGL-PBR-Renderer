@@ -6,6 +6,7 @@
 #include <stb_image.h>
 
 #include "camera.h"
+#include "constants.h"
 #include "framebuffer.h"
 #include "fullscreenquad.h"
 #include "hdrtexture.h"
@@ -13,6 +14,7 @@
 #include "shader.h"
 #include "skybox.h"
 
+#include "cubemapframebuffer.h"
 #include "hdricube.h"
 
 // shaders
@@ -78,6 +80,10 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
+static void renderCubemap() {
+
+}
+
 /**
  *
  * @param argc number of args
@@ -133,7 +139,6 @@ int main(int argc, const char * argv[])
 
     // Model
     FullscreenQuad fullscreenQuad;
-    Skybox skybox("resources/skybox");
     Model sphere("resources/sphere/sphere.gltf");
 
     // Lights
@@ -146,7 +151,44 @@ int main(int argc, const char * argv[])
     };
 
     // start IBL stuff
-    HDRICube hdriCube = HDRICube("resources/hdr/newport_loft.hdr");
+    auto cubemapWidth = 512;
+    auto cubemapHeight = 512;
+    auto cubemapFramebuffer = CubemapFramebuffer(cubemapWidth, cubemapHeight);
+    auto hdriCube = HDRICube("resources/hdr/newport_loft.hdr");
+
+    glm::mat4 model = constants::mIndentity4;
+    glm::mat4 cameraAngles[] =
+        {
+            glm::lookAt(constants::origin, constants::unitX, -constants::unitY),
+            glm::lookAt(constants::origin, -constants::unitX, -constants::unitY),
+            glm::lookAt(constants::origin, constants::unitY, constants::unitZ),
+            glm::lookAt(constants::origin, -constants::unitY, -constants::unitZ),
+            glm::lookAt(constants::origin, constants::unitZ, -constants::unitY),
+            glm::lookAt(constants::origin, -constants::unitZ, -constants::unitY)
+        };
+    glm::mat4 projection = glm::perspective(
+        glm::radians(90.0f), // 90 degrees to cover one face
+        1.0f, // its a square
+        0.1f,
+        2.0f);
+
+    glViewport(0, 0, cubemapWidth, cubemapHeight);
+    cubemapFramebuffer.bind();
+    hdriShader.use();
+
+    // render to each side of the cubemap
+    for (auto i = 0; i < 6; i++) {
+        hdriShader.setModelViewProjectionMatrices(model, cameraAngles[i], projection);
+        cubemapFramebuffer.setCubeFace(i);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        hdriCube.Draw(hdriShader);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default framebuffer
+
+    // now that we rendered to the cubemap textures we can use them as a skybox
+    Skybox skybox(cubemapFramebuffer.getCubemapTextureId());
 
     // end IBL stuff
 
@@ -175,9 +217,13 @@ int main(int argc, const char * argv[])
         model = glm::mat4(1.0f);
 
         // cube
-        hdriShader.use();
-        hdriShader.setModelViewProjectionMatrices(model, view, projection);
-        hdriCube.Draw(hdriShader);
+
+        // skybox (draw this last to avoid running fragment shader in places where objects are present
+        skyboxShader.use();
+        model = glm::mat4(1.0f);
+        glm::mat4 skyboxView = glm::mat4(glm::mat3(view)); // remove translation so skybox is always surrounding camera
+        skyboxShader.setModelViewProjectionMatrices(model, skyboxView, projection);
+        skybox.Draw(skyboxShader);
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
