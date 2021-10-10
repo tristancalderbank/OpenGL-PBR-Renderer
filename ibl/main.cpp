@@ -14,10 +14,8 @@
 #include "shader.h"
 #include "skybox.h"
 
+#include "ibl/diffuseirradiancemap.h"
 #include "cubemapcube.h"
-#include "cubemapframebuffer.h"
-#include "diffuseirradiancecube.h"
-#include "hdricube.h"
 
 // shaders
 std::string postVertexShaderPath = "shaders/post.vert";
@@ -82,10 +80,6 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-static void renderCubemap() {
-
-}
-
 /**
  *
  * @param argc number of args
@@ -137,8 +131,6 @@ int main(int argc, const char * argv[])
     // Shader
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
-    Shader hdriShader("shaders/hdricube.vert", "shaders/hdricube.frag");
-    Shader diffuseIrradianceShader("shaders/diffuseirradiance.vert", "shaders/diffuseirradiance.frag");
     Shader cubemapShader("shaders/cubemap.vert", "shaders/cubemap.frag"); // for debugging
 
     // Model
@@ -155,68 +147,17 @@ int main(int argc, const char * argv[])
     };
 
     // start IBL stuff
-    auto cubemapWidth = 512;
-    auto cubemapHeight = 512;
-    auto diffuseIrradianceMapWidth = 32;
-    auto diffuseIrradianceMapHeight = 32;
-    auto cubemapFramebuffer = CubemapFramebuffer(cubemapWidth, cubemapHeight);
-    auto diffuseIrradianceFramebuffer = CubemapFramebuffer(diffuseIrradianceMapWidth, diffuseIrradianceMapHeight);
-    auto hdriCube = HDRICube("resources/hdr/newport_loft.hdr");
 
-    glm::mat4 model = constants::mIndentity4;
-    glm::mat4 cameraAngles[] =
-        {
-            glm::lookAt(constants::origin, constants::unitX, -constants::unitY),
-            glm::lookAt(constants::origin, -constants::unitX, -constants::unitY),
-            glm::lookAt(constants::origin, constants::unitY, constants::unitZ),
-            glm::lookAt(constants::origin, -constants::unitY, -constants::unitZ),
-            glm::lookAt(constants::origin, constants::unitZ, -constants::unitY),
-            glm::lookAt(constants::origin, -constants::unitZ, -constants::unitY)
-        };
-    glm::mat4 projection = glm::perspective(
-        glm::radians(90.0f), // 90 degrees to cover one face
-        1.0f, // its a square
-        0.1f,
-        2.0f);
-
-    glViewport(0, 0, cubemapWidth, cubemapHeight);
-
-    // render the equirectangular HDR texture to a cubemap
-    cubemapFramebuffer.bind();
-    hdriShader.use();
-
-    // render to each side of the cubemap
-    for (auto i = 0; i < 6; i++) {
-        hdriShader.setModelViewProjectionMatrices(model, cameraAngles[i], projection);
-        cubemapFramebuffer.setCubeFace(i);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        hdriCube.Draw(hdriShader);
-    }
-
-    // now render to a second cubemap which is just an average convolution of the
-    // first cubemap
-    auto diffuseIrradianceCube = DiffuseIrradianceCube(cubemapFramebuffer.getCubemapTextureId());
-    glViewport(0, 0, diffuseIrradianceMapWidth, diffuseIrradianceMapHeight);
-    diffuseIrradianceFramebuffer.bind();
-    diffuseIrradianceShader.use();
-
-    // render to each side of the cubemap
-    for (auto i = 0; i < 6; i++) {
-        diffuseIrradianceShader.setModelViewProjectionMatrices(model, cameraAngles[i], projection);
-        diffuseIrradianceFramebuffer.setCubeFace(i);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        diffuseIrradianceCube.Draw(diffuseIrradianceShader);
-    }
+    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", "resources/hdr/newport_loft.hdr");
+    diffuseIrradianceMap.compute();
 
     // for debugging
-    auto cubemapCube = CubemapCube(diffuseIrradianceFramebuffer.getCubemapTextureId());
+    auto cubemapCube = CubemapCube(diffuseIrradianceMap.getCubemapId());
 
     // end IBL stuff
 
     // now that we rendered to the cubemap textures we can use them as a skybox
-    Skybox skybox(cubemapFramebuffer.getCubemapTextureId());
+    Skybox skybox(diffuseIrradianceMap.getEnvCubemapId());
 
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time

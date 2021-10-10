@@ -8,5 +8,5 @@ void
 CubemapCube::Draw(Shader &shader) {
     shader.setInt("cubemap", 0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-    cube->Draw(shader);
+    cube->Draw();
 };

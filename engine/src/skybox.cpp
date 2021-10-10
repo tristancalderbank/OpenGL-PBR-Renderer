@@ -20,7 +20,7 @@ Skybox::Draw(Shader &shader) {
 
     // draw mesh
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
-    cube->Draw(shader);
+    cube->Draw();
     glDepthFunc(GL_LESS); // go back to default depth comparison
 };
 

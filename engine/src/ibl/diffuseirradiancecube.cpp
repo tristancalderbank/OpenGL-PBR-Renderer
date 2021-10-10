@@ -8,5 +8,5 @@ void
 DiffuseIrradianceCube::Draw(Shader &shader) {
     shader.setInt("environmentCubemap", 0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemap);
-    cube->Draw(shader);
+    cube->Draw();
 };

@@ -5,7 +5,7 @@ Cube::Cube() {
 }
 
 void
-Cube::Draw(Shader &shader) {
+Cube::Draw() {
     // draw mesh
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());

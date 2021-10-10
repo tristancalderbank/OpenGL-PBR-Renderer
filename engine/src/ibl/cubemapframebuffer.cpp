@@ -1,4 +1,4 @@
-#include "cubemapframebuffer.h"
+#include "ibl/cubemapframebuffer.h"
 
 CubemapFramebuffer::CubemapFramebuffer(int width, int height) : width(width), height(height) {
     // framebuffer

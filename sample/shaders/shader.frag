@@ -2,7 +2,6 @@
 
 #define PI 3.1415926535897932384626433832795
 #define GAMMA 2.2 // TODO: make this a uniform and adjustable from imgui
-#define AMBIENT 0.03 // TODO: make this a uniform and adjustable from imgui
 
 out vec4 FragColor;
 in vec3 worldCoordinates;
@@ -25,6 +24,7 @@ uniform vec3 lightColors[4];
 
 // PBR 
 uniform float ambientOcclusion;
+uniform samplerCube diffuseIrradianceMap;
 
 // Fresnel function (Fresnel-Schlick approximation)
 //
@@ -32,6 +32,14 @@ uniform float ambientOcclusion;
 //
 vec3 fresnelSchlick(float cosTheta, vec3 f0) { 
 	return f0 + (1.0 - f0) * pow(max(1 - cosTheta, 0.0), 5.0);
+}
+
+// Fresnel schlick roughness
+//
+// Same as above except with a roughness term
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 f0, float roughness)
+{
+	return f0 + (max(vec3(1.0 - roughness), f0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 // Normal distribution function (Trowbridge-Reitz GGX)
@@ -90,8 +98,15 @@ void main() {
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
 
+	// f0 is the "surface reflection at zero incidence"
+	// for PBR-metallic we assume dialectrics all have 0.04
+	// for metals the value comes from the albedo map
+	vec3 f0 = vec3(0.04);
+	f0 = mix(f0, albedo, metallic);
+
 	vec3 Lo = vec3(0.0); // total radiance out
 
+	// Direct lighting
 	// Sum up the radiance contributions of each light source.
 	// This loop is essentially the integral of the rendering equation.
 	for (int i = 0; i < 4; i++) {
@@ -115,12 +130,6 @@ void main() {
 
 		// Fresnel term (F)
 		// Determines the ratio of light reflected vs. absorbed
-
-		// f0 is the "surface reflection at zero incidence"
-		// for PBR-metallic we assume dialectrics all have 0.04
-		// for metals the value comes from the albedo map
-		vec3 f0 = vec3(0.04); 
-		f0 = mix(f0, albedo, metallic); 
 		vec3 fTerm = fresnelSchlick(max(dot(h, v), 0.0), f0);
 
 		// Geometry term (G)
@@ -151,7 +160,14 @@ void main() {
 		Lo += cookTorranceBrdf * radiance * nDotL;
 	}
 
-	vec3 ambient = AMBIENT * albedo * ambientOcclusion;
+	// Indirect lighting (IBL)
+	vec3 kSpecular = fresnelSchlickRoughness(max(dot(n, v), 0.0), f0, roughness);
+    vec3 kDiffuse = 1.0 - kSpecular;
+    vec3 irradiance = texture(diffuseIrradianceMap, n).rgb;
+    vec3 diffuse = irradiance * albedo;
+    vec3 ambient = (kDiffuse * diffuse) * ambientOcclusion;
+
+	// Combine direct/indirect
 	vec3 color = ambient + Lo;
 
 	FragColor = vec4(color, 1.0);

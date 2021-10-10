@@ -4,8 +4,9 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-#include "shader.h"
 #include "camera.h"
+#include "ibl/diffuseirradiancemap.h"
+#include "shader.h"
 #include "model.h"
 #include "skybox.h"
 #include "framebuffer.h"
@@ -112,8 +113,7 @@ int main(int argc, const char * argv[])
     // OpenGL options 
 
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
-    
+
     // GLFW options
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, processMouseMovement);
@@ -136,15 +136,20 @@ int main(int argc, const char * argv[])
     // Init any intermediate framebuffers
     framebuffer.init();
 
-
     // Shader
     Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
+    // Pre-compute IBL stuff
+    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", "resources/hdr/newport_loft.hdr");
+    diffuseIrradianceMap.compute();
+
+    glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
+
     // Model
     FullscreenQuad fullscreenQuad;
-    Skybox skybox("resources/skybox");
+    Skybox skybox(diffuseIrradianceMap.getEnvCubemapId());
     Model sphere("resources/sphere/sphere.gltf");
 
     // Lights
@@ -205,16 +210,20 @@ int main(int argc, const char * argv[])
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 model;
 
+        // sphere (PBR)
         shader.use();
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(scale, scale, scale));
         shader.setModelViewProjectionMatrices(model, view, projection);
 
-        // sphere
         shader.setFloat("ambientOcclusion", 0.5f);
         shader.setVec3Array("lightPositions", lightPositions);
         shader.setVec3Array("lightColors", lightColors);
         shader.setVec3("cameraPosition", cameraPosition);
+
+        glActiveTexture(GL_TEXTURE0 + 10);
+        shader.setInt("diffuseIrradianceMap", 10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseIrradianceMap.getCubemapId());
 
         sphere.Draw(shader);
 

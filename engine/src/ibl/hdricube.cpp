@@ -1,4 +1,4 @@
-#include "hdricube.h"
+#include "ibl/hdricube.h"
 
 HDRICube::HDRICube(const std::string &hdriPath) : hdrTexture(HDRTexture(hdriPath))
 {
@@ -11,5 +11,5 @@ HDRICube::Draw(Shader &shader) {
 
     // draw mesh
     glBindTexture(GL_TEXTURE_2D, hdrTexture.getId());
-    cube->Draw(shader);
+    cube->Draw();
 };

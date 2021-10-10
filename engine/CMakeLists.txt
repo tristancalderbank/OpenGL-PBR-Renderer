@@ -1,13 +1,19 @@
 add_library(Engine
         src/camera.cpp
         src/cube.cpp
+        src/cubemapcube.cpp
         src/framebuffer.cpp
         src/fullscreenquad.cpp
         src/hdrtexture.cpp
+        src/ibl/cubemapframebuffer.cpp
+        src/ibl/diffuseirradiancecube.cpp
+        src/ibl/diffuseirradiancemap.cpp
+        src/ibl/hdricube.cpp
         src/mesh.cpp
         src/model.cpp
         src/shader.cpp
         src/skybox.cpp
+        src/timer.cpp
         )
 
 target_include_directories(Engine
