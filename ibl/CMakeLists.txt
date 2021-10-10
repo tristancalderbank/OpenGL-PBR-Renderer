@@ -1,4 +1,6 @@
 add_executable(Ibl
+        diffuseirradiancecube.cpp
+        cubemapcube.cpp
         cubemapframebuffer.cpp
         main.cpp
         hdricube.cpp

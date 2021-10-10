@@ -1,5 +1,6 @@
 add_library(Engine
         src/camera.cpp
+        src/cube.cpp
         src/framebuffer.cpp
         src/fullscreenquad.cpp
         src/hdrtexture.cpp

@@ -14,7 +14,9 @@
 #include "shader.h"
 #include "skybox.h"
 
+#include "cubemapcube.h"
 #include "cubemapframebuffer.h"
+#include "diffuseirradiancecube.h"
 #include "hdricube.h"
 
 // shaders
@@ -136,6 +138,8 @@ int main(int argc, const char * argv[])
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
     Shader hdriShader("shaders/hdricube.vert", "shaders/hdricube.frag");
+    Shader diffuseIrradianceShader("shaders/diffuseirradiance.vert", "shaders/diffuseirradiance.frag");
+    Shader cubemapShader("shaders/cubemap.vert", "shaders/cubemap.frag"); // for debugging
 
     // Model
     FullscreenQuad fullscreenQuad;
@@ -153,7 +157,10 @@ int main(int argc, const char * argv[])
     // start IBL stuff
     auto cubemapWidth = 512;
     auto cubemapHeight = 512;
+    auto diffuseIrradianceMapWidth = 32;
+    auto diffuseIrradianceMapHeight = 32;
     auto cubemapFramebuffer = CubemapFramebuffer(cubemapWidth, cubemapHeight);
+    auto diffuseIrradianceFramebuffer = CubemapFramebuffer(diffuseIrradianceMapWidth, diffuseIrradianceMapHeight);
     auto hdriCube = HDRICube("resources/hdr/newport_loft.hdr");
 
     glm::mat4 model = constants::mIndentity4;
@@ -173,6 +180,8 @@ int main(int argc, const char * argv[])
         2.0f);
 
     glViewport(0, 0, cubemapWidth, cubemapHeight);
+
+    // render the equirectangular HDR texture to a cubemap
     cubemapFramebuffer.bind();
     hdriShader.use();
 
@@ -185,12 +194,29 @@ int main(int argc, const char * argv[])
         hdriCube.Draw(hdriShader);
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default framebuffer
+    // now render to a second cubemap which is just an average convolution of the
+    // first cubemap
+    auto diffuseIrradianceCube = DiffuseIrradianceCube(cubemapFramebuffer.getCubemapTextureId());
+    glViewport(0, 0, diffuseIrradianceMapWidth, diffuseIrradianceMapHeight);
+    diffuseIrradianceFramebuffer.bind();
+    diffuseIrradianceShader.use();
+
+    // render to each side of the cubemap
+    for (auto i = 0; i < 6; i++) {
+        diffuseIrradianceShader.setModelViewProjectionMatrices(model, cameraAngles[i], projection);
+        diffuseIrradianceFramebuffer.setCubeFace(i);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        diffuseIrradianceCube.Draw(diffuseIrradianceShader);
+    }
+
+    // for debugging
+    auto cubemapCube = CubemapCube(diffuseIrradianceFramebuffer.getCubemapTextureId());
+
+    // end IBL stuff
 
     // now that we rendered to the cubemap textures we can use them as a skybox
     Skybox skybox(cubemapFramebuffer.getCubemapTextureId());
-
-    // end IBL stuff
 
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time
@@ -217,6 +243,9 @@ int main(int argc, const char * argv[])
         model = glm::mat4(1.0f);
 
         // cube
+        cubemapShader.use();
+        cubemapShader.setModelViewProjectionMatrices(model, view, projection);
+        cubemapCube.Draw(cubemapShader);
 
         // skybox (draw this last to avoid running fragment shader in places where objects are present
         skyboxShader.use();

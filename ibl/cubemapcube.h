@@ -5,22 +5,17 @@
 #include <iostream>
 
 #include <glad/glad.h>
-#include "stb_image/stb_image.h"
 
 #include "cube.h"
-#include "hdrtexture.h"
 #include "shader.h"
 
-/**
- * A unit cube textured with an equirectangular HDR image.
- */
-class HDRICube {
+class CubemapCube {
 
 public:
-    HDRICube(const std::string &hdriPath);
+    CubemapCube(unsigned int cubemap);
     void Draw(Shader &shader);
 
 private:
     std::unique_ptr<Cube> cube;
-    HDRTexture hdrTexture;
+    unsigned int cubemap;
 };

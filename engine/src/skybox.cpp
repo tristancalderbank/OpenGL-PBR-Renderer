@@ -2,11 +2,11 @@
 
 Skybox::Skybox(std::string textureDirectoryPath) {
     loadCubemapTextures(textureDirectoryPath);
-    loadVertexData();
+    cube = std::make_unique<Cube>();
 }
 
 Skybox::Skybox(unsigned int textureId) : textureId(textureId) {
-    loadVertexData();
+    cube = std::make_unique<Cube>();
 }
 
 void
@@ -19,11 +19,8 @@ Skybox::Draw(Shader &shader) {
     glDepthFunc(GL_LEQUAL);
 
     // draw mesh
-    glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
-    glDrawArrays(GL_TRIANGLES, 0, SKYBOX_CUBE_NUM_TRIANGLES);
-    glBindVertexArray(0);
-
+    cube->Draw(shader);
     glDepthFunc(GL_LESS); // go back to default depth comparison
 };
 
@@ -57,23 +54,4 @@ Skybox::loadCubemapTextures(std::string textureDirectoryPath) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     stbi_set_flip_vertically_on_load(true);
-}
-
-void
-Skybox::loadVertexData() {
-    // create our data structures
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO); // use this VAO for subsequent calls
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // use this VBO for subsequent calls
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW); // copy over the vertex data
-
-    // setup the locations of vertex data
-    // positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-    glBindVertexArray(0);
 }
