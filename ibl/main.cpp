@@ -115,7 +115,6 @@ int main(int argc, const char * argv[])
     // OpenGL options
 
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
     // GLFW options
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -135,7 +134,6 @@ int main(int argc, const char * argv[])
 
     // Model
     FullscreenQuad fullscreenQuad;
-    Model sphere("resources/sphere/sphere.gltf");
 
     // Lights
     std::vector<glm::vec3> lightPositions = {
@@ -155,6 +153,7 @@ int main(int argc, const char * argv[])
     auto cubemapCube = CubemapCube(diffuseIrradianceMap.getCubemapId());
 
     // end IBL stuff
+    glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
     // now that we rendered to the cubemap textures we can use them as a skybox
     Skybox skybox(diffuseIrradianceMap.getEnvCubemapId());

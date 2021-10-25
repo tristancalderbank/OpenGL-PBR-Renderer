@@ -77,6 +77,8 @@ void DiffuseIrradianceMap::compute() {
     }
 
     timer.logDifference("Rendered diffuse irradiance map");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 unsigned int DiffuseIrradianceMap::getCubemapId() {
