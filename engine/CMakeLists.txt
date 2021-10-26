@@ -9,6 +9,7 @@ add_library(Engine
         src/ibl/diffuseirradiancecube.cpp
         src/ibl/diffuseirradiancemap.cpp
         src/ibl/hdricube.cpp
+        src/ibl/mipmapcubemapframebuffer.cpp
         src/mesh.cpp
         src/model.cpp
         src/shader.cpp
