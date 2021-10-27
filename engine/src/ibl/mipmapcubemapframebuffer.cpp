@@ -47,7 +47,8 @@ void MipmapCubemapFramebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 }
 
-void MipmapCubemapFramebuffer::setMipLevel(unsigned int mipLevel) {
+void MipmapCubemapFramebuffer::setMipLevel(unsigned int level) {
+    mipLevel = level;
     mipWidth = width * std::pow(0.5, mipLevel);
     mipHeight = height * std::pow(0.5, mipLevel);
 

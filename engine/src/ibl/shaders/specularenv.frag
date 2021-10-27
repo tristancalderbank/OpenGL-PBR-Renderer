@@ -11,6 +11,7 @@ const uint SAMPLE_COUNT = 1024u;
 
 // this mirrors the number in binary around the decimal point
 // aka return: a0 / 2 + a1 / 4 + a2 / 8 + ...
+// where ax is the a'th digit
 //
 // source: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html#sec-SourceCode
 float radicalInverseVanDerCorput(uint bits)
@@ -73,7 +74,7 @@ void main() {
 		vec3 L = normalize(2.0 * dot(V, H) * H - V); // light sample direction
 
 		float NdotL = max(dot(N, L), 0.0); // don't forget from the integral
-		if(NdotL > 0.0) {
+		if(NdotL > 0.0) { // stuff with negative dot product is behind our hemisphere
 			outputColor += texture(environmentCubemap, L).rgb * NdotL;
 			totalWeight += NdotL;
 		}

@@ -39,6 +39,7 @@ void SpecularMap::computePrefilteredEnvMap()
     auto cube = Cube();
     prefilteredEnvMapFramebuffer->bind();
     prefilteredEnvMapShader->use();
+    prefilteredEnvMapShader->setInt("environmentCubemap", 0);
 
     for (auto mipLevel = 0; mipLevel < prefilteredEnvMapMipLevels; mipLevel++) {
         prefilteredEnvMapFramebuffer->setMipLevel(mipLevel);
@@ -56,7 +57,6 @@ void SpecularMap::computePrefilteredEnvMap()
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            prefilteredEnvMapShader->setInt("environmentCubemap", 0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, environmentCubemapId);
             cube.Draw();
         }

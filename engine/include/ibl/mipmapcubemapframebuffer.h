@@ -15,7 +15,7 @@ public:
      * Set the mip level to render with.
      * @param mipLevel
      */
-    void setMipLevel(unsigned int mipLevel);
+    void setMipLevel(unsigned int level);
 
     /**
      * Get the current width based on the mip level.
