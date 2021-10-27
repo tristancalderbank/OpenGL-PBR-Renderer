@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "ibl/diffuseirradiancemap.h"
+#include "ibl/equirectangularcubemap.h"
 #include "shader.h"
 #include "model.h"
 #include "skybox.h"
@@ -142,14 +143,16 @@ int main(int argc, const char * argv[])
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
     // Pre-compute IBL stuff
-    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", "resources/hdr/newport_loft.hdr");
+    auto equirectangularCubemap = EquirectangularCubemap("../engine", "resources/hdr/newport_loft.hdr");
+    equirectangularCubemap.compute();
+    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", equirectangularCubemap.getCubemapId());
     diffuseIrradianceMap.compute();
 
     glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
     // Model
     FullscreenQuad fullscreenQuad;
-    Skybox skybox(diffuseIrradianceMap.getEnvCubemapId());
+    Skybox skybox(equirectangularCubemap.getCubemapId());
     Model sphere("resources/sphere/sphere.gltf");
 
     // Lights

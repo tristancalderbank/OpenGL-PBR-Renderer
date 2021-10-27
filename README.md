@@ -11,3 +11,7 @@ A toy rendering engine written in C++ using OpenGL.
 * stb_image, for loading images
 * imgui, for the debug/tweaking UI
 
+### References
+
+* Learn OpenGL: https://learnopengl.com
+* Generating low discrepancy points on a hemisphere: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html#sec-SourceCode

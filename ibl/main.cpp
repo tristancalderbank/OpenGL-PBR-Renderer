@@ -14,8 +14,10 @@
 #include "shader.h"
 #include "skybox.h"
 
-#include "ibl/diffuseirradiancemap.h"
 #include "cubemapcube.h"
+#include "ibl/diffuseirradiancemap.h"
+#include "ibl/equirectangularcubemap.h"
+#include "ibl/specularmap.h"
 
 // shaders
 std::string postVertexShaderPath = "shaders/post.vert";
@@ -145,9 +147,14 @@ int main(int argc, const char * argv[])
     };
 
     // start IBL stuff
+    auto equirectangularCubemap = EquirectangularCubemap("../engine", "resources/hdr/newport_loft.hdr");
+    equirectangularCubemap.compute();
 
-    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", "resources/hdr/newport_loft.hdr");
+    auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", equirectangularCubemap.getCubemapId());
     diffuseIrradianceMap.compute();
+
+    auto specularMap = SpecularMap("../engine", equirectangularCubemap.getCubemapId());
+    specularMap.computePrefilteredEnvMap();
 
     // for debugging
     auto cubemapCube = CubemapCube(diffuseIrradianceMap.getCubemapId());
@@ -156,7 +163,7 @@ int main(int argc, const char * argv[])
     glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
     // now that we rendered to the cubemap textures we can use them as a skybox
-    Skybox skybox(diffuseIrradianceMap.getEnvCubemapId());
+    Skybox skybox(equirectangularCubemap.getCubemapId());
 
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time

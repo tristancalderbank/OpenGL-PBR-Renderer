@@ -6,10 +6,11 @@ add_library(Engine
         src/fullscreenquad.cpp
         src/hdrtexture.cpp
         src/ibl/cubemapframebuffer.cpp
-        src/ibl/diffuseirradiancecube.cpp
         src/ibl/diffuseirradiancemap.cpp
+        src/ibl/equirectangularcubemap.cpp
         src/ibl/hdricube.cpp
         src/ibl/mipmapcubemapframebuffer.cpp
+        src/ibl/specularmap.cpp
         src/mesh.cpp
         src/model.cpp
         src/shader.cpp
