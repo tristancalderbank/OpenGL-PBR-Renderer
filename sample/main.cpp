@@ -139,7 +139,7 @@ int main(int argc, const char * argv[])
     framebuffer.init();
 
     // Shader
-    Shader shader(pbrVertexShaderPath.c_str(), pbrFragmentShaderPath.c_str());
+    Shader pbrShader(pbrVertexShaderPath.c_str(), pbrFragmentShaderPath.c_str());
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
@@ -156,10 +156,11 @@ int main(int argc, const char * argv[])
 
     glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
-    // Model
+    // Models/Geometry
     FullscreenQuad fullscreenQuad;
     Skybox skybox(equirectangularCubemap.getCubemapId());
     Model sphere("resources/sphere/sphere.gltf");
+    Model helmet("resources/helmet/DamagedHelmet.gltf");
 
     // Lights
     std::vector<glm::vec3> lightPositions = {
@@ -220,15 +221,15 @@ int main(int argc, const char * argv[])
         glm::mat4 model;
 
         // sphere (PBR)
-        shader.use();
+        pbrShader.use();
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(scale, scale, scale));
-        shader.setModelViewProjectionMatrices(model, view, projection);
+        pbrShader.setModelViewProjectionMatrices(model, view, projection);
 
-        shader.setFloat("ambientOcclusion", 0.5f);
-        shader.setVec3Array("lightPositions", lightPositions);
-        shader.setVec3Array("lightColors", lightColors);
-        shader.setVec3("cameraPosition", cameraPosition);
+        pbrShader.setFloat("ambientOcclusion", 0.5f);
+        pbrShader.setVec3Array("lightPositions", lightPositions);
+        pbrShader.setVec3Array("lightColors", lightColors);
+        pbrShader.setVec3("cameraPosition", cameraPosition);
 
         // TODO figure out a better way to do this
         const int diffuseIrradianceMapTextureSlot = 10;
@@ -236,18 +237,19 @@ int main(int argc, const char * argv[])
         const int brdfConvolutionMapTextureSlot = 12;
 
         glActiveTexture(GL_TEXTURE0 + diffuseIrradianceMapTextureSlot);
-        shader.setInt("diffuseIrradianceMap", diffuseIrradianceMapTextureSlot);
+        pbrShader.setInt("diffuseIrradianceMap", diffuseIrradianceMapTextureSlot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseIrradianceMap.getCubemapId());
 
         glActiveTexture(GL_TEXTURE0 + prefilteredEnvMapTextureSlot);
-        shader.setInt("prefilteredEnvMap", prefilteredEnvMapTextureSlot);
+        pbrShader.setInt("prefilteredEnvMap", prefilteredEnvMapTextureSlot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, specularMap.getPrefilteredEnvMapId());
 
         glActiveTexture(GL_TEXTURE0 + brdfConvolutionMapTextureSlot);
-        shader.setInt("brdfConvolutionMap", brdfConvolutionMapTextureSlot);
+        pbrShader.setInt("brdfConvolutionMap", brdfConvolutionMapTextureSlot);
         glBindTexture(GL_TEXTURE_2D, specularMap.getBrdfConvolutionMapId());
 
-        sphere.Draw(shader);
+        //sphere.Draw(pbrShader);
+        helmet.Draw(pbrShader);
 
         // skybox (draw this last to avoid running fragment shader in places where objects are present
         skyboxShader.use();
@@ -255,7 +257,7 @@ int main(int argc, const char * argv[])
         glm::mat4 skyboxView = glm::mat4(glm::mat3(view)); // remove translation so skybox is always surrounding camera
 
         skyboxShader.setModelViewProjectionMatrices(model, skyboxView, projection);
-        skybox.Draw(shader);
+        skybox.Draw(skyboxShader);
 
         // Post-processing pass
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
