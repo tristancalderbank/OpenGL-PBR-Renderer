@@ -118,6 +118,12 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             textures.emplace_back(normal);
         }
 
+        // ambient occlusion
+        if (material->GetTextureCount(aiTextureType_LIGHTMAP)) {
+            Texture ambientOcclusion = loadMaterialTexture(material, aiTextureType_LIGHTMAP, "ambientOcclusion");
+            textures.emplace_back(ambientOcclusion);
+        }
+
         // emissive
         if (material->GetTextureCount(aiTextureType_EMISSIVE)) {
             Texture emissive = loadMaterialTexture(material, aiTextureType_EMISSIVE, "emissive");

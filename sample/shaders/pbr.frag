@@ -12,6 +12,7 @@ struct Material {
   sampler2D albedo;
   sampler2D metallicRoughness;
   sampler2D normal;
+  sampler2D ambientOcclusion;
   sampler2D emissive;
 };
 
@@ -101,7 +102,9 @@ void main() {
 	vec2 metallicRoughness = texture(material.metallicRoughness, textureCoordinates).rg;
 	float metallic = metallicRoughness.r;
 	float roughness = metallicRoughness.g;
-	
+	float ao = texture(material.ambientOcclusion, textureCoordinates).r;
+	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
+
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
 	vec3 r = reflect(v, n); // reflection
@@ -183,12 +186,9 @@ void main() {
 	vec2 brdf = texture(brdfConvolutionMap, vec2(NdotV, roughness)).rg;
 	vec3 specular = prefilteredEnvMapColor * (kSpecular * brdf.x + brdf.y);
 
-	vec3 ambient = (kDiffuse * diffuse + specular) * ambientOcclusion; // indirect lighting
+	vec3 ambient = (kDiffuse * diffuse + specular) * ao; // indirect lighting
 
-	// emissive
-	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
-
-	// Combine direct/indirect
+	// Combine emissive + indirect + direct
 	vec3 color = emissive + ambient + Lo;
 
 	FragColor = vec4(color, 1.0);

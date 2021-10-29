@@ -159,7 +159,7 @@ int main(int argc, const char * argv[])
     // Models/Geometry
     FullscreenQuad fullscreenQuad;
     Skybox skybox(equirectangularCubemap.getCubemapId());
-    Model sphere("resources/sphere/sphere.gltf");
+    //Model sphere("resources/sphere/sphere.gltf");
 
     stbi_set_flip_vertically_on_load(false);
     Model helmet("resources/helmet/DamagedHelmet.gltf");
