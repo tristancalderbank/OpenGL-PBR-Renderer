@@ -6,5 +6,5 @@ in vec3 textureCoordinates;
 uniform samplerCube skybox;
 
 void main() {
-	FragColor = texture(skybox, textureCoordinates); // for samplerCube the coordinates are a vector
+	FragColor = textureLod(skybox, textureCoordinates, 1.0); // for samplerCube the coordinates are a vector
 }

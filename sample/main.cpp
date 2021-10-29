@@ -112,8 +112,8 @@ int main(int argc, const char * argv[])
     }
 
     // OpenGL options 
-
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // interpolate between cubemap faces
 
     // GLFW options
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -242,7 +242,11 @@ int main(int argc, const char * argv[])
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         postShader.use();
-        fullscreenQuad.Draw(postShader, framebuffer.getColorTextureHandle());
+
+        glActiveTexture(GL_TEXTURE0);
+        postShader.setInt("colorTexture", 0);
+        glBindTexture(GL_TEXTURE_2D, framebuffer.getColorTextureHandle());
+        fullscreenQuad.Draw();
 
         // draw ImGui
         ImGui::Render();

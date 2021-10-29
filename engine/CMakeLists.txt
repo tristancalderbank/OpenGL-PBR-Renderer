@@ -5,6 +5,7 @@ add_library(Engine
         src/framebuffer.cpp
         src/fullscreenquad.cpp
         src/hdrtexture.cpp
+        src/ibl/brdfconvolutionframebuffer.cpp
         src/ibl/cubemapframebuffer.cpp
         src/ibl/diffuseirradiancemap.cpp
         src/ibl/equirectangularcubemap.cpp

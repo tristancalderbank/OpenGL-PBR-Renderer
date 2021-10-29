@@ -5,15 +5,26 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "constants.h"
+#include "cube.h"
+#include "framebuffer.h"
+#include "fullscreenquad.h"
 #include "timer.h"
 #include "ibl/mipmapcubemapframebuffer.h"
 
 SpecularMap::SpecularMap(const std::string &engineRoot, const unsigned int environmentCubemapId) : environmentCubemapId(environmentCubemapId) {
+    // pre-filtered env map
     std::string prefilteredEnvMapVertexShaderPath = engineRoot + "/src/ibl/shaders/specularenv.vert";
     std::string prefilteredEnvMapFragmentShaderPath = engineRoot + "/src/ibl/shaders/specularenv.frag";
 
     prefilteredEnvMapShader = std::make_unique<Shader>(prefilteredEnvMapVertexShaderPath.c_str(), prefilteredEnvMapFragmentShaderPath.c_str());
     prefilteredEnvMapFramebuffer = std::make_unique<MipmapCubemapFramebuffer>(prefilteredEnvMapWidth, prefilteredEnvMapHeight);
+
+    // BRDF convolution
+    std::string brdfConvolutionVertexShaderPath = engineRoot + "/src/ibl/shaders/brdfconvolution.vert";
+    std::string brdfConvolutionFragmentShaderPath = engineRoot + "/src/ibl/shaders/brdfconvolution.frag";
+
+    brdfConvolutionShader = std::make_unique<Shader>(brdfConvolutionVertexShaderPath.c_str(), brdfConvolutionFragmentShaderPath.c_str());
+    brdfConvolutionFramebuffer = std::make_unique<BrdfConvolutionFramebuffer>(brdfConvolutionMapWidth, brdfConvolutionMapHeight);
 }
 
 void SpecularMap::computePrefilteredEnvMap()
@@ -70,4 +81,26 @@ void SpecularMap::computePrefilteredEnvMap()
 unsigned int SpecularMap::getPrefilteredEnvMapId()
 {
    return prefilteredEnvMapFramebuffer->getCubemapTextureId();
+}
+
+void SpecularMap::computeBrdfConvolutionMap()
+{
+    Timer timer;
+
+    auto fullscreenQuad = FullscreenQuad();
+    brdfConvolutionFramebuffer->bind();
+    brdfConvolutionShader->use();
+
+    glViewport(0, 0, brdfConvolutionMapWidth, brdfConvolutionMapHeight);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    fullscreenQuad.Draw();
+
+    timer.logDifference("Rendered specular brdf convolution map");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+unsigned int SpecularMap::getBrdfConvolutionMapId()
+{
+    return brdfConvolutionFramebuffer->getColorTextureId();
 }

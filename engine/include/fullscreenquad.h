@@ -10,7 +10,7 @@ const unsigned int QUAD_NUM_TRIANGLES = 6;
 class FullscreenQuad {
 public:
 	FullscreenQuad();
-    void Draw(Shader &shader, unsigned int colorTextureId);
+    void Draw();
 
 private:
     void loadVertexData();

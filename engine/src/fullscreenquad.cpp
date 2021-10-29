@@ -5,18 +5,12 @@ FullscreenQuad::FullscreenQuad() {
 };
 
 void
-FullscreenQuad::Draw(Shader &shader, unsigned int colorTextureId) {
-    shader.use();
-
-    glActiveTexture(GL_TEXTURE0);
-    shader.setInt("colorTexture", 0);
-    glBindTexture(GL_TEXTURE_2D, colorTextureId);
-
+FullscreenQuad::Draw() {
     glDisable(GL_DEPTH_TEST);
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, QUAD_NUM_TRIANGLES);
-    glBindVertexArray(0);
     glEnable(GL_DEPTH_TEST);
+    glBindVertexArray(0);
 };
 
 void
