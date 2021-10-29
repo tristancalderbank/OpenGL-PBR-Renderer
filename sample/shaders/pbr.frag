@@ -12,6 +12,7 @@ struct Material {
   sampler2D albedo;
   sampler2D metallicRoughness;
   sampler2D normal;
+  sampler2D emissive;
 };
 
 uniform Material material;
@@ -103,7 +104,7 @@ void main() {
 	
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
-	vec3 r = reflect(-v, n); // reflection
+	vec3 r = reflect(v, n); // reflection
 
 	// f0 is the "surface reflection at zero incidence"
 	// for PBR-metallic we assume dialectrics all have 0.04
@@ -184,8 +185,11 @@ void main() {
 
 	vec3 ambient = (kDiffuse * diffuse + specular) * ambientOcclusion; // indirect lighting
 
+	// emissive
+	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
+
 	// Combine direct/indirect
-	vec3 color = ambient + Lo;
+	vec3 color = emissive + ambient + Lo;
 
 	FragColor = vec4(color, 1.0);
 }

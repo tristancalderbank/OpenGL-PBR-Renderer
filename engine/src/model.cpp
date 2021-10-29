@@ -117,6 +117,12 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             Texture normal = loadMaterialTexture(material, aiTextureType_NORMALS, "normal");
             textures.emplace_back(normal);
         }
+
+        // emissive
+        if (material->GetTextureCount(aiTextureType_EMISSIVE)) {
+            Texture emissive = loadMaterialTexture(material, aiTextureType_EMISSIVE, "emissive");
+            textures.emplace_back(emissive);
+        }
     }
 
     return Mesh(vertices, indices, textures);
