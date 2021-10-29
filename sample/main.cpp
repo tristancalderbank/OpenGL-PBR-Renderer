@@ -226,8 +226,8 @@ int main(int argc, const char * argv[])
         // sphere (PBR)
         pbrShader.use();
         model = glm::mat4(1.0f);
-        model = glm::rotate(model, 1.5708f, glm::vec3(1.0f, 0.0f, 0.0f)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-        model = glm::scale(model, glm::vec3(scale, scale, scale));
+        //model = glm::rotate(model, 1.5708f, glm::vec3(1.0f, 0.0f, 0.0f)); // where x, y, z is axis of rotation (e.g. 0 1 0)
+        //model = glm::scale(model, glm::vec3(scale, scale, scale));
         pbrShader.setModelViewProjectionMatrices(model, view, projection);
 
         pbrShader.setFloat("ambientOcclusion", 0.5f);

@@ -18,7 +18,7 @@ Model::Draw(Shader& shader) {
 void
 Model::loadModel(std::string path) {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -83,6 +83,18 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         else {
             vertex.textureCoordinates = glm::vec2(0.0f, 0.0f);
         }
+
+        // tangents
+        glm::vec3 tangent;
+        tangent.x = mesh->mTangents[0].x;
+        tangent.y = mesh->mTangents[0].y;
+        tangent.z = mesh->mTangents[0].z;
+
+        // bitangents
+        glm::vec3 bitangent;
+        bitangent.x = mesh->mBitangents[0].x;
+        bitangent.y = mesh->mBitangents[0].y;
+        bitangent.z = mesh->mBitangents[0].z;
 
         vertices.push_back(vertex);
     }

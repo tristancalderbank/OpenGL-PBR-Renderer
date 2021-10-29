@@ -7,6 +7,7 @@ out vec4 FragColor;
 in vec3 worldCoordinates;
 in vec3 normal;
 in vec2 textureCoordinates;
+in mat3 TBN; // tangent to world matrix
 
 struct Material {
   sampler2D albedo;
@@ -96,18 +97,25 @@ float geometrySmith(vec3 n, vec3 v, vec3 l, float roughness) {
 	return geometrySchlickGGX(n, v, k) * geometrySchlickGGX(n, l, k);
 }
 
+// Tangent space to world
+// Transpose inverse to account for transforms
+vec3 calculateNormal(vec3 tangentNormal) {
+	vec3 normal = tangentNormal * 2.0 - 1.0;
+	return normalize(TBN * normal); // tangent --> world
+}
+
 void main() {
 	// get all the texture values
 	vec3 albedo = texture(material.albedo, textureCoordinates).rgb;
-	vec2 metallicRoughness = texture(material.metallicRoughness, textureCoordinates).rg;
-	float metallic = metallicRoughness.r;
+	vec3 metallicRoughness = texture(material.metallicRoughness, textureCoordinates).rgb;
+	float metallic = metallicRoughness.b;
 	float roughness = metallicRoughness.g;
 	float ao = texture(material.ambientOcclusion, textureCoordinates).r;
 	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
 
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
-	vec3 r = reflect(v, n); // reflection
+	vec3 r = reflect(-v, n); // reflection
 
 	// f0 is the "surface reflection at zero incidence"
 	// for PBR-metallic we assume dialectrics all have 0.04
