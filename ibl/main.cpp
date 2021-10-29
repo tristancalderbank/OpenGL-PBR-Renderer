@@ -27,8 +27,8 @@ std::string skyboxVertexShaderPath = "shaders/skybox.vert";
 std::string skyboxFragmentShaderPath = "shaders/skybox.frag";
 
 // viewport
-int INITIAL_VIEWPORT_WIDTH = 800;
-int INITIAL_VIEWPORT_HEIGHT = 600;
+int INITIAL_VIEWPORT_WIDTH = 1600;
+int INITIAL_VIEWPORT_HEIGHT = 1200;
 const float IMGUI_FONT_SCALE = 1.0f;
 
 // camera
@@ -155,6 +155,7 @@ int main(int argc, const char * argv[])
 
     auto specularMap = SpecularMap("../engine", equirectangularCubemap.getCubemapId());
     specularMap.computePrefilteredEnvMap();
+    specularMap.computeBrdfConvolutionMap();
 
     // for debugging
     auto cubemapCube = CubemapCube(diffuseIrradianceMap.getCubemapId());

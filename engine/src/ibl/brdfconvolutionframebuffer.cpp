@@ -24,6 +24,8 @@ BrdfConvolutionFramebuffer::BrdfConvolutionFramebuffer(unsigned int width, unsig
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTextureId, 0);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
