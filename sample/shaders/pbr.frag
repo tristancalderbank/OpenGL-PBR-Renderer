@@ -22,9 +22,15 @@ uniform vec3 cameraPosition;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
-// PBR 
+// PBR
 uniform float ambientOcclusion;
+
+// IBL precomputed maps
+const float PREFILTERED_ENV_MAP_LOD = 4.0; // how many mipmap levels
+
 uniform samplerCube diffuseIrradianceMap;
+uniform samplerCube prefilteredEnvMap;
+uniform sampler2D brdfConvolutionMap;
 
 // Fresnel function (Fresnel-Schlick approximation)
 //
@@ -97,6 +103,7 @@ void main() {
 	
 	vec3 n = normalize(normal); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
+	vec3 r = reflect(-v, n); // reflection
 
 	// f0 is the "surface reflection at zero incidence"
 	// for PBR-metallic we assume dialectrics all have 0.04
@@ -161,11 +168,21 @@ void main() {
 	}
 
 	// Indirect lighting (IBL)
-	vec3 kSpecular = fresnelSchlickRoughness(max(dot(n, v), 0.0), f0, roughness);
+	vec3 kSpecular = fresnelSchlickRoughness(max(dot(n, v), 0.0), f0, roughness); // aka F
     vec3 kDiffuse = 1.0 - kSpecular;
+	kDiffuse *= 1.0 - metallic; // metallic materials should have no diffuse component
+
+	// diffuse
     vec3 irradiance = texture(diffuseIrradianceMap, n).rgb;
     vec3 diffuse = irradiance * albedo;
-    vec3 ambient = (kDiffuse * diffuse) * ambientOcclusion;
+
+	// specular
+	vec3 prefilteredEnvMapColor = textureLod(prefilteredEnvMap, r, roughness * PREFILTERED_ENV_MAP_LOD).rgb;
+	float NdotV = max(dot(n, v), 0.0);
+	vec2 brdf = texture(brdfConvolutionMap, vec2(NdotV, roughness)).rg;
+	vec3 specular = prefilteredEnvMapColor * (kSpecular * brdf.x + brdf.y);
+
+	vec3 ambient = (kDiffuse * diffuse + specular) * ambientOcclusion; // indirect lighting
 
 	// Combine direct/indirect
 	vec3 color = ambient + Lo;

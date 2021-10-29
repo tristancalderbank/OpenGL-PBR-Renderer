@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "ibl/diffuseirradiancemap.h"
 #include "ibl/equirectangularcubemap.h"
+#include "ibl/specularmap.h"
 #include "shader.h"
 #include "model.h"
 #include "skybox.h"
@@ -14,8 +15,8 @@
 #include "fullscreenquad.h"
 
 // shaders
-std::string vertexShaderPath = "shaders/shader.vert";
-std::string fragmentShaderPath = "shaders/shader.frag";
+std::string pbrVertexShaderPath = "shaders/pbr.vert";
+std::string pbrFragmentShaderPath = "shaders/pbr.frag";
 
 std::string postVertexShaderPath = "shaders/post.vert";
 std::string postFragmentShaderPath = "shaders/post.frag";
@@ -24,8 +25,8 @@ std::string skyboxVertexShaderPath = "shaders/skybox.vert";
 std::string skyboxFragmentShaderPath = "shaders/skybox.frag";
 
 // viewport
-int INITIAL_VIEWPORT_WIDTH = 800;
-int INITIAL_VIEWPORT_HEIGHT = 600;
+int INITIAL_VIEWPORT_WIDTH = 1600;
+int INITIAL_VIEWPORT_HEIGHT = 1200;
 const float IMGUI_FONT_SCALE = 1.0f;
 
 // camera
@@ -138,15 +139,20 @@ int main(int argc, const char * argv[])
     framebuffer.init();
 
     // Shader
-    Shader shader(vertexShaderPath.c_str(), fragmentShaderPath.c_str());
+    Shader shader(pbrVertexShaderPath.c_str(), pbrFragmentShaderPath.c_str());
     Shader postShader(postVertexShaderPath.c_str(), postFragmentShaderPath.c_str());
     Shader skyboxShader(skyboxVertexShaderPath.c_str(), skyboxFragmentShaderPath.c_str());
 
     // Pre-compute IBL stuff
     auto equirectangularCubemap = EquirectangularCubemap("../engine", "resources/hdr/newport_loft.hdr");
     equirectangularCubemap.compute();
+
     auto diffuseIrradianceMap = DiffuseIrradianceMap("../engine", equirectangularCubemap.getCubemapId());
     diffuseIrradianceMap.compute();
+
+    auto specularMap = SpecularMap("../engine", equirectangularCubemap.getCubemapId());
+    specularMap.computePrefilteredEnvMap();
+    specularMap.computeBrdfConvolutionMap();
 
     glViewport(0, 0, INITIAL_VIEWPORT_WIDTH, INITIAL_VIEWPORT_HEIGHT); // set initial viewport size
 
@@ -224,9 +230,22 @@ int main(int argc, const char * argv[])
         shader.setVec3Array("lightColors", lightColors);
         shader.setVec3("cameraPosition", cameraPosition);
 
-        glActiveTexture(GL_TEXTURE0 + 10);
-        shader.setInt("diffuseIrradianceMap", 10);
+        // TODO figure out a better way to do this
+        const int diffuseIrradianceMapTextureSlot = 10;
+        const int prefilteredEnvMapTextureSlot = 11;
+        const int brdfConvolutionMapTextureSlot = 12;
+
+        glActiveTexture(GL_TEXTURE0 + diffuseIrradianceMapTextureSlot);
+        shader.setInt("diffuseIrradianceMap", diffuseIrradianceMapTextureSlot);
         glBindTexture(GL_TEXTURE_CUBE_MAP, diffuseIrradianceMap.getCubemapId());
+
+        glActiveTexture(GL_TEXTURE0 + prefilteredEnvMapTextureSlot);
+        shader.setInt("prefilteredEnvMap", prefilteredEnvMapTextureSlot);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, specularMap.getPrefilteredEnvMapId());
+
+        glActiveTexture(GL_TEXTURE0 + brdfConvolutionMapTextureSlot);
+        shader.setInt("brdfConvolutionMap", brdfConvolutionMapTextureSlot);
+        glBindTexture(GL_TEXTURE_2D, specularMap.getBrdfConvolutionMapId());
 
         sphere.Draw(shader);
 
