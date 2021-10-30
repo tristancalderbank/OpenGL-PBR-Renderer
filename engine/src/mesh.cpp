@@ -2,10 +2,10 @@
 
 #include <glad/glad.h>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material material) {
     this->vertices = vertices;
     this->indices = indices;
-    this->textures = textures;
+    this->material = material;
 
     init();
 }
@@ -13,13 +13,45 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
 void
 Mesh::Draw(Shader& shader) {
 
-    for (unsigned int i = 0; i < textures.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
+    // albedo
+    shader.setBool("material.useTextureAlbedo", material.useTextureAlbedo);
+    shader.setVec3("material.albedo", material.albedo);
+    if (material.useTextureAlbedo) {
+        glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_ALBEDO);
+        shader.setInt("material.textureAlbedo", TEXTURE_UNIT_ALBEDO);
+        glBindTexture(GL_TEXTURE_2D, material.textureAlbedo->id);
+    }
 
-        std::string name = textures[i].type;
+    shader.setBool("material.useTextureMetallicRoughness", material.useTextureMetallicRoughness);
+    shader.setFloat("material.metallic", material.metallic);
+    shader.setFloat("material.roughness", material.roughness);
+    if (material.textureMetallicRoughness) {
+        glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_METALLIC_ROUGHNESS);
+        shader.setInt("material.textureMetallicRoughness", TEXTURE_UNIT_METALLIC_ROUGHNESS);
+        glBindTexture(GL_TEXTURE_2D, material.textureMetallicRoughness->id);
+    }
 
-        shader.setInt(("material." + name).c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    shader.setBool("material.useTextureNormal", material.useTextureNormal);
+    if (material.useTextureNormal) {
+        glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_NORMAL);
+        shader.setInt("material.textureNormal", TEXTURE_UNIT_NORMAL);
+        glBindTexture(GL_TEXTURE_2D, material.textureNormal->id);
+    }
+
+    shader.setBool("material.useTextureAmbientOcclusion", material.useTextureAmbientOcclusion);
+    shader.setFloat("material.ambientOcclusion", material.ambientOcclusion);
+    if (material.useTextureAmbientOcclusion) {
+        glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_AMBIENT_OCCLUSION);
+        shader.setInt("material.textureAmbientOcclusion", TEXTURE_UNIT_AMBIENT_OCCLUSION);
+        glBindTexture(GL_TEXTURE_2D, material.textureAmbientOcclusion->id);
+    }
+
+    shader.setBool("material.useTextureEmissive", material.useTextureEmissive);
+    shader.setVec3("material.emissive", material.emissive);
+    if (material.useTextureEmissive) {
+        glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_EMISSIVE);
+        shader.setInt("material.textureEmissive", TEXTURE_UNIT_EMISSIVE);
+        glBindTexture(GL_TEXTURE_2D, material.textureEmissive->id);
     }
 
     glActiveTexture(GL_TEXTURE0);

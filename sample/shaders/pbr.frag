@@ -10,11 +10,23 @@ in vec3 bitangent;
 in vec3 normal;
 
 struct Material {
-  sampler2D albedo;
-  sampler2D metallicRoughness;
-  sampler2D normal;
-  sampler2D ambientOcclusion;
-  sampler2D emissive;
+  bool useTextureAlbedo;
+  bool useTextureMetallicRoughness;
+  bool useTextureNormal;
+  bool useTextureAmbientOcclusion;
+  bool useTextureEmissive;
+
+  vec3 albedo;
+  float metallic;
+  float roughness;
+  float ambientOcclusion;
+  vec3 emissive;
+
+  sampler2D textureAlbedo;
+  sampler2D textureMetallicRoughness;
+  sampler2D textureNormal;
+  sampler2D textureAmbientOcclusion;
+  sampler2D textureEmissive;
 };
 
 uniform Material material;
@@ -105,15 +117,41 @@ vec3 calculateNormal(vec3 tangentNormal) {
 }
 
 void main() {
-	// get all the texture values
-	vec3 albedo = texture(material.albedo, textureCoordinates).rgb;
-	vec3 metallicRoughness = texture(material.metallicRoughness, textureCoordinates).rgb;
-	float metallic = metallicRoughness.b;
-	float roughness = metallicRoughness.g;
-	float ao = texture(material.ambientOcclusion, textureCoordinates).r;
-	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
+	// retrieve all the material properties
 
-	vec3 n = calculateNormal(texture(material.normal, textureCoordinates).rgb); // normal
+	// albedo
+	vec3 albedo = material.albedo;
+	if (material.useTextureAlbedo) {
+		albedo = texture(material.textureAlbedo, textureCoordinates).rgb;
+	}
+
+	// metallic/roughness
+	float metallic = material.metallic;
+	float roughness = material.roughness;
+	if (material.useTextureMetallicRoughness) {
+		vec3 metallicRoughness = texture(material.textureMetallicRoughness, textureCoordinates).rgb;
+		metallic = metallicRoughness.b;
+		roughness = metallicRoughness.g;
+	}
+
+	// normal
+	vec3 n = normal; // interpolated vertex normal
+	if (material.useTextureNormal) {
+		n = calculateNormal(texture(material.textureNormal, textureCoordinates).rgb); // normal
+	}
+
+	// ambient occlusion
+	float ao = material.ambientOcclusion;
+	if (material.useTextureAmbientOcclusion) {
+		ao = texture(material.textureAmbientOcclusion, textureCoordinates).r;
+	}
+
+	// emissive
+	vec3 emissive = material.emissive;
+	if (material.useTextureEmissive) {
+		emissive = texture(material.textureEmissive, textureCoordinates).rgb;
+	}
+
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
 	vec3 r = reflect(-v, n); // reflection
 

@@ -9,6 +9,9 @@
 #include <map>
 #include "mesh.h"
 
+/**
+ * A model is a collection of meshes.
+ */
 class Model {
 public:
 	Model(std::string path);
@@ -24,12 +27,12 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
 	// loads the first texture of given type
-	Texture loadMaterialTexture(aiMaterial* material, aiTextureType type, std::string typeName);
+    std::shared_ptr<Texture> loadMaterialTexture(aiMaterial* material, aiTextureType type);
 	unsigned int textureFromFile(const char* fileName, std::string directory, aiTextureType type);
 
 private:
     // data
     std::vector<Mesh> meshes;
     std::string directory;
-    std::map<std::string, Texture> texturesLoaded;
+    std::map<std::string, std::shared_ptr<Texture>> texturesLoaded;
 };

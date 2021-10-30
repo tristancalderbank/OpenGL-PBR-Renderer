@@ -51,7 +51,7 @@ Mesh
 Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+    Material material;
 
     // vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -111,46 +111,46 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     }
 
     if (mesh->mMaterialIndex >= 0) {
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        aiMaterial* aiMaterial = scene->mMaterials[mesh->mMaterialIndex];
 
         // albedo
-        if (material->GetTextureCount(aiTextureType_DIFFUSE)) {
-            Texture albedo = loadMaterialTexture(material, aiTextureType_DIFFUSE, "albedo");
-            textures.emplace_back(albedo);
+        if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE)) {
+            material.useTextureAlbedo = true;
+            material.textureAlbedo = loadMaterialTexture(aiMaterial, aiTextureType_DIFFUSE);
         }
 
         // metallicRoughness (in gltf 2.0 they are combined in one texture)
-        if (material->GetTextureCount(aiTextureType_UNKNOWN)) {
+        if (aiMaterial->GetTextureCount(aiTextureType_UNKNOWN)) {
             // defined here in assimp https://github.com/assimp/assimp/blob/master/include/assimp/pbrmaterial.h#L57
-            Texture metallicRoughness = loadMaterialTexture(material, aiTextureType_UNKNOWN, "metallicRoughness");
-            textures.emplace_back(metallicRoughness);
+            material.useTextureMetallicRoughness = true;
+            material.textureMetallicRoughness = loadMaterialTexture(aiMaterial, aiTextureType_UNKNOWN);
         }
 
         // normal
-        if (material->GetTextureCount(aiTextureType_NORMALS)) {
-            Texture normal = loadMaterialTexture(material, aiTextureType_NORMALS, "normal");
-            textures.emplace_back(normal);
+        if (aiMaterial->GetTextureCount(aiTextureType_NORMALS)) {
+            material.useTextureNormal = true;
+            material.textureNormal = loadMaterialTexture(aiMaterial, aiTextureType_NORMALS);
         }
 
         // ambient occlusion
-        if (material->GetTextureCount(aiTextureType_LIGHTMAP)) {
-            Texture ambientOcclusion = loadMaterialTexture(material, aiTextureType_LIGHTMAP, "ambientOcclusion");
-            textures.emplace_back(ambientOcclusion);
+        if (aiMaterial->GetTextureCount(aiTextureType_LIGHTMAP)) {
+            material.useTextureAmbientOcclusion = true;
+            material.textureAmbientOcclusion = loadMaterialTexture(aiMaterial, aiTextureType_LIGHTMAP);
         }
 
         // emissive
-        if (material->GetTextureCount(aiTextureType_EMISSIVE)) {
-            Texture emissive = loadMaterialTexture(material, aiTextureType_EMISSIVE, "emissive");
-            textures.emplace_back(emissive);
+        if (aiMaterial->GetTextureCount(aiTextureType_EMISSIVE)) {
+            material.useTextureEmissive = true;
+            material.textureEmissive = loadMaterialTexture(aiMaterial, aiTextureType_EMISSIVE);
         }
     }
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, material);
 }
 
 // loads the first texture of given type
-Texture
-Model::loadMaterialTexture(aiMaterial* material, aiTextureType type, std::string typeName) {
+std::shared_ptr<Texture>
+Model::loadMaterialTexture(aiMaterial* material, aiTextureType type) {
     aiString path;
     material->GetTexture(type, 0, &path);
 
@@ -160,16 +160,15 @@ Model::loadMaterialTexture(aiMaterial* material, aiTextureType type, std::string
         return iterator->second;
     }
 
-    Texture texture;
+    auto texture = std::make_shared<Texture>();
 
     std::cout << "Process material: " << path.C_Str() << std::endl;
 
-    texture.id = textureFromFile(path.C_Str(), directory, type);
-    texture.type = typeName;
-    texture.path = path.C_Str();
+    texture->id = textureFromFile(path.C_Str(), directory, type);
+    texture->path = path.C_Str();
 
     // cache it for future lookups
-    texturesLoaded.insert(std::pair<std::string, Texture>(path.C_Str(), texture));
+    texturesLoaded.insert(std::pair<std::string, std::shared_ptr<Texture>>(path.C_Str(), texture));
 
     return texture;
 }
