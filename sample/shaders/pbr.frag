@@ -1,7 +1,6 @@
 #version 330 core
 
 #define PI 3.1415926535897932384626433832795
-#define GAMMA 2.2 // TODO: make this a uniform and adjustable from imgui
 
 out vec4 FragColor;
 in vec3 worldCoordinates;

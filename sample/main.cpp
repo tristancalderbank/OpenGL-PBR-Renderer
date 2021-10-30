@@ -174,6 +174,9 @@ int main(int argc, const char * argv[])
         glm::vec3(150.0f, 150.0f, 150.0f)
     };
 
+    bool tonemappingEnabled = false;
+    float gammaCorrectionFactor = 2.2;
+
     while (!glfwWindowShouldClose(window)) {
         // calculate frame time
         float currentTime = glfwGetTime();
@@ -193,6 +196,10 @@ int main(int argc, const char * argv[])
         ImGui::CollapsingHeader("Model");
         float scale = 1.0;
         ImGui::SliderFloat("scale", &scale, 0.0, 100);
+
+        ImGui::CollapsingHeader("Post-processing");
+        ImGui::Checkbox("HDR Tone Mapping (Reinhard)", &tonemappingEnabled);
+        ImGui::SliderFloat("Gamma Correction", &gammaCorrectionFactor, 1.0, 3.0);
 
         ImGui::End();
         
@@ -267,6 +274,9 @@ int main(int argc, const char * argv[])
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         postShader.use();
+
+        postShader.setBool("tonemappingEnabled", tonemappingEnabled);
+        postShader.setFloat("gammaCorrectionFactor", gammaCorrectionFactor);
 
         glActiveTexture(GL_TEXTURE0);
         postShader.setInt("colorTexture", 0);
