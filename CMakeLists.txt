@@ -7,5 +7,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(dependencies)
 add_subdirectory(engine)
-add_subdirectory(ibl)
 add_subdirectory(sample)
