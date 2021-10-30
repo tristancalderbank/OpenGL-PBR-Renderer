@@ -1,6 +1,6 @@
 # NanoEngine
 
-A toy rendering engine written in C++ using OpenGL.
+A toy PBR rendering engine written in C++ using OpenGL.
 
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/pbr_first_implementation.png">
 
