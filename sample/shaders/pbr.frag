@@ -5,9 +5,10 @@
 
 out vec4 FragColor;
 in vec3 worldCoordinates;
-in vec3 normal;
 in vec2 textureCoordinates;
-in mat3 TBN; // tangent to world matrix
+in vec3 tangent;
+in vec3 bitangent;
+in vec3 normal;
 
 struct Material {
   sampler2D albedo;
@@ -98,10 +99,10 @@ float geometrySmith(vec3 n, vec3 v, vec3 l, float roughness) {
 }
 
 // Tangent space to world
-// Transpose inverse to account for transforms
 vec3 calculateNormal(vec3 tangentNormal) {
-	vec3 normal = tangentNormal * 2.0 - 1.0;
-	return normalize(TBN * normal); // tangent --> world
+	vec3 norm = normalize(tangentNormal * 2.0 - 1.0);
+	mat3 TBN  = mat3(tangent, bitangent, normal);
+	return normalize(TBN * norm); // tangent --> world
 }
 
 void main() {
@@ -113,7 +114,7 @@ void main() {
 	float ao = texture(material.ambientOcclusion, textureCoordinates).r;
 	vec3 emissive = texture(material.emissive, textureCoordinates).rgb;
 
-	vec3 n = normalize(normal); // normal
+	vec3 n = calculateNormal(texture(material.normal, textureCoordinates).rgb); // normal
 	vec3 v = normalize(cameraPosition - worldCoordinates); // view vector pointing at camera
 	vec3 r = reflect(-v, n); // reflection
 

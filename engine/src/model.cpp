@@ -89,12 +89,14 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         tangent.x = mesh->mTangents[0].x;
         tangent.y = mesh->mTangents[0].y;
         tangent.z = mesh->mTangents[0].z;
+        vertex.tangent = tangent;
 
         // bitangents
         glm::vec3 bitangent;
         bitangent.x = mesh->mBitangents[0].x;
         bitangent.y = mesh->mBitangents[0].y;
         bitangent.z = mesh->mBitangents[0].z;
+        vertex.bitangent = bitangent;
 
         vertices.push_back(vertex);
     }
