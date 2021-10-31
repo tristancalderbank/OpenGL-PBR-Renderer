@@ -4,6 +4,7 @@
 #include "glfw3.h"
 
 #include "fullscreenquad.h"
+#include "scene.h"
 #include "skybox.h"
 #include "shader.h"
 #include "model.h"
@@ -17,7 +18,7 @@ const int TEXTURE_UNIT_BRDF_CONVOLUTION_MAP = 12;
 
 class RenderManager {
 public:
-    void startup();
+    void startup(std::shared_ptr<Scene> scene);
     void shutdown();
     void render();
 private:
@@ -31,17 +32,8 @@ private:
     // skybox
     std::unique_ptr<Skybox> mSkybox;
 
-    // objects
-    std::unique_ptr<Model> mHelmet;
-
-    // lights
-    std::vector<glm::vec3> mLightPositions = {
-        glm::vec3(0.0f, 0.0f, 10.0f)
-    };
-
-    std::vector<glm::vec3> mLightColors = {
-        glm::vec3(150.0f, 150.0f, 150.0f)
-    };
+    // scene
+    std::shared_ptr<Scene> mScene;
 
     // post-processing
     bool mTonemappingEnabled = false;

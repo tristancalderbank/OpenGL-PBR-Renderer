@@ -1,8 +1,8 @@
 #include "engine.h"
 
-void Engine::startup()
+void Engine::startup(std::shared_ptr<Scene> scene)
 {
-    renderManager.startup();
+    renderManager.startup(scene);
 }
 
 void Engine::run()

@@ -66,8 +66,10 @@ void processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
     }
 }
 
-void RenderManager::startup()
+void RenderManager::startup(std::shared_ptr<Scene> scene)
 {
+    mScene = scene;
+
     glfwInit();
 
     // see window creation options here: https://www.glfw.org/docs/latest/window.html#window_hints
@@ -140,10 +142,6 @@ void RenderManager::startup()
     // Models/Geometry
     mFullscreenQuad = std::make_unique<FullscreenQuad>();
     mSkybox = std::make_unique<Skybox>(mIblEquirectangularCubemap->getCubemapId());
-
-    stbi_set_flip_vertically_on_load(false);
-    mHelmet = std::make_unique<Model>("resources/helmet/DamagedHelmet.gltf");
-    stbi_set_flip_vertically_on_load(true);
 }
 
 void RenderManager::shutdown()
@@ -214,8 +212,8 @@ void RenderManager::render()
         model = glm::scale(model, glm::vec3(scale, scale, scale));
         mPbrShader->setModelViewProjectionMatrices(model, view, projection);
 
-        mPbrShader->setVec3Array("lightPositions", mLightPositions);
-        mPbrShader->setVec3Array("lightColors", mLightColors);
+        mPbrShader->setVec3Array("lightPositions", mScene->mLightPositions);
+        mPbrShader->setVec3Array("lightColors", mScene->mLightColors);
         mPbrShader->setVec3("cameraPosition", cameraPosition);
 
         glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_DIFFUSE_IRRADIANCE_MAP);
@@ -230,7 +228,9 @@ void RenderManager::render()
         mPbrShader->setInt("brdfConvolutionMap", TEXTURE_UNIT_BRDF_CONVOLUTION_MAP);
         glBindTexture(GL_TEXTURE_2D, mIblSpecularMap->getBrdfConvolutionMapId());
 
-        mHelmet->Draw(*mPbrShader);
+        for (auto model : mScene->mModels) {
+            model.Draw(*mPbrShader);
+        }
 
         // skybox (draw this last to avoid running fragment shader in places where objects are present
         mSkyboxShader->use();

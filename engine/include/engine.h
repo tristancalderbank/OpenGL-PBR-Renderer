@@ -7,7 +7,7 @@
  */
 class Engine {
 public:
-    void startup();
+    void startup(std::shared_ptr<Scene> scene);
     void run();
 private:
     RenderManager renderManager;
