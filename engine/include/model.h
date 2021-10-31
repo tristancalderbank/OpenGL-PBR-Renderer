@@ -19,6 +19,7 @@ public:
      * @param path
      */
 	Model(std::string path);
+    Model(std::string path, bool flipTexturesVertically);
 
     /**
      * Load a glTF 2.0 model using a provided material. This will ignore any material
@@ -29,7 +30,7 @@ public:
 	void Draw(Shader& shader);
 
 private:
-	void loadModel(std::string path);
+	void loadModel(std::string path, bool flipTexturesVertically);
 
 	// recursively load all meshes in the node tree 
 	void processNode(aiNode* node, const aiScene* scene);

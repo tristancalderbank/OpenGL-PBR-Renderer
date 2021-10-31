@@ -5,11 +5,15 @@
 #include "glad/glad.h"
 
 Model::Model(std::string path) {
-    loadModel(path);
+    loadModel(path, true);
+}
+
+Model::Model(std::string path, bool flipTexturesVertically) {
+    loadModel(path, flipTexturesVertically);
 }
 
 Model::Model(std::string path, std::shared_ptr<Material> material) : materialOverride(material) {
-    loadModel(path);
+    loadModel(path, true);
 }
 
 void
@@ -20,8 +24,9 @@ Model::Draw(Shader& shader) {
 }
 
 void
-Model::loadModel(std::string path) {
+Model::loadModel(std::string path, bool flipTexturesVertically) {
     Assimp::Importer importer;
+    stbi_set_flip_vertically_on_load(flipTexturesVertically);
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -31,6 +36,7 @@ Model::loadModel(std::string path) {
     directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
+    stbi_set_flip_vertically_on_load(true);
 }
 
 // recursively load all meshes in the node tree

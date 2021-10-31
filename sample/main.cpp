@@ -1,5 +1,7 @@
 #include "engine.h"
 
+#include "glm/gtc/quaternion.hpp"
+
 #include "scene.h"
 
 /**
@@ -18,9 +20,10 @@ int main(int argc, const char * argv[])
     scene->mLightPositions.push_back(glm::vec3(0.0f, 0.0f, 10.0f));
     scene->mLightColors.push_back(glm::vec3(150.0f, 150.0f, 150.0f));
 
-    stbi_set_flip_vertically_on_load(false);
-    scene->mModels.push_back(Model("resources/helmet/DamagedHelmet.gltf"));
-    stbi_set_flip_vertically_on_load(true);
+    auto helmetModel = std::make_shared<Model>("resources/helmet/DamagedHelmet.gltf", false);
+    auto helmet = Entity(helmetModel);
+    helmet.setOrientation(glm::angleAxis(1.5708f, glm::vec3(1.0f, 0.0f, 0.0f)));
+    scene->mEntities.push_back(helmet);
 
     engine.run();
 

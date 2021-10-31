@@ -3,6 +3,7 @@ add_library(Engine
         src/cube.cpp
         src/cubemapcube.cpp
         src/engine.cpp
+        src/entity.cpp
         src/framebuffer.cpp
         src/fullscreenquad.cpp
         src/hdrtexture.cpp

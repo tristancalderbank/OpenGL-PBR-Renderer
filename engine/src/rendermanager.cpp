@@ -1,6 +1,7 @@
 #include "rendermanager.h"
 
 #include "glm/glm.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -168,10 +169,6 @@ void RenderManager::render()
         ImGui::Text("Average FPS %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         camera.drawDebugPanel();
 
-        ImGui::CollapsingHeader("Model");
-        float scale = 1.0;
-        ImGui::SliderFloat("scale", &scale, 0.0, 100);
-
         ImGui::CollapsingHeader("Post-processing");
         ImGui::Checkbox("HDR Tone Mapping (Reinhard)", &mTonemappingEnabled);
         ImGui::SliderFloat("Gamma Correction", &mGammaCorrectionFactor, 1.0, 3.0);
@@ -189,7 +186,7 @@ void RenderManager::render()
             io.ConfigFlags = io.ConfigFlags & !ImGuiConfigFlags_NoMouse;
         }
 
-        // input
+        // Input
         processInput(mWindow);
         glfwSetInputMode(mWindow, GLFW_CURSOR, mouseCameraEnabled ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL); // don't show cursor on the windo
         camera.processKeyboard(mWindow, frameTimeDelta);
@@ -205,17 +202,13 @@ void RenderManager::render()
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 model;
 
-        // sphere (PBR)
         mPbrShader->use();
-        model = glm::mat4(1.0f);
-        model = glm::rotate(model, 1.5708f, glm::vec3(1.0f, 0.0f, 0.0f)); // where x, y, z is axis of rotation (e.g. 0 1 0)
-        model = glm::scale(model, glm::vec3(scale, scale, scale));
-        mPbrShader->setModelViewProjectionMatrices(model, view, projection);
 
         mPbrShader->setVec3Array("lightPositions", mScene->mLightPositions);
         mPbrShader->setVec3Array("lightColors", mScene->mLightColors);
         mPbrShader->setVec3("cameraPosition", cameraPosition);
 
+        // IBL stuff
         glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_DIFFUSE_IRRADIANCE_MAP);
         mPbrShader->setInt("diffuseIrradianceMap", TEXTURE_UNIT_DIFFUSE_IRRADIANCE_MAP);
         glBindTexture(GL_TEXTURE_CUBE_MAP, mIblDiffuseIrradianceMap->getCubemapId());
@@ -228,8 +221,18 @@ void RenderManager::render()
         mPbrShader->setInt("brdfConvolutionMap", TEXTURE_UNIT_BRDF_CONVOLUTION_MAP);
         glBindTexture(GL_TEXTURE_2D, mIblSpecularMap->getBrdfConvolutionMapId());
 
-        for (auto model : mScene->mModels) {
-            model.Draw(*mPbrShader);
+        for (auto entity : mScene->mEntities) {
+            model = glm::mat4(1.0f);
+
+            auto rotationMatrix = glm::toMat4(entity.getOrientation());
+            model = rotationMatrix * model;
+
+            model = glm::translate(model, entity.getPosition());
+            model = glm::scale(model, entity.getScale());
+
+            mPbrShader->setModelViewProjectionMatrices(model, view, projection);
+
+            entity.getModel()->Draw(*mPbrShader);
         }
 
         // skybox (draw this last to avoid running fragment shader in places where objects are present
