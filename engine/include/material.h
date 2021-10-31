@@ -14,7 +14,7 @@ struct Material {
     float metallic = 1.0f;
     float roughness = 0.0f;
     float ambientOcclusion = 0.0f;
-    glm::vec3 emissive = constants::colorWhite;
+    glm::vec3 emissive = glm::vec3(0.0, 0.0, 0.0);
 
     std::shared_ptr<Texture> textureAlbedo;
     std::shared_ptr<Texture> textureMetallicRoughness;

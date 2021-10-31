@@ -12,8 +12,8 @@ Model::Model(std::string path, bool flipTexturesVertically) {
     loadModel(path, flipTexturesVertically);
 }
 
-Model::Model(std::string path, std::shared_ptr<Material> material) : materialOverride(material) {
-    loadModel(path, true);
+Model::Model(std::string path, std::shared_ptr<Material> material, bool flipTexturesVertically) : materialOverride(material) {
+    loadModel(path, flipTexturesVertically);
 }
 
 void

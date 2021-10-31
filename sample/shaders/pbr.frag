@@ -135,7 +135,7 @@ void main() {
 	// normal
 	vec3 n = normal; // interpolated vertex normal
 	if (material.useTextureNormal) {
-		n = calculateNormal(texture(material.textureNormal, textureCoordinates).rgb); // normal
+		n = calculateNormal(texture(material.textureNormal, textureCoordinates).rgb);
 	}
 
 	// ambient occlusion

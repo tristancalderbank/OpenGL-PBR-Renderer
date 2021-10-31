@@ -25,7 +25,7 @@ Mesh::Draw(Shader& shader) {
     shader.setBool("material.useTextureMetallicRoughness", material.useTextureMetallicRoughness);
     shader.setFloat("material.metallic", material.metallic);
     shader.setFloat("material.roughness", material.roughness);
-    if (material.textureMetallicRoughness) {
+    if (material.useTextureMetallicRoughness) {
         glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_METALLIC_ROUGHNESS);
         shader.setInt("material.textureMetallicRoughness", TEXTURE_UNIT_METALLIC_ROUGHNESS);
         glBindTexture(GL_TEXTURE_2D, material.textureMetallicRoughness->id);

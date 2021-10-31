@@ -26,7 +26,7 @@ public:
      * present in the model file.
      * @param path
      */
-    Model(std::string path, std::shared_ptr<Material> material);
+    Model(std::string path, std::shared_ptr<Material> material, bool flipTexturesVertically);
 	void Draw(Shader& shader);
 
 private:
