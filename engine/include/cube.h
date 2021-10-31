@@ -3,7 +3,6 @@
 #include <vector>
 #include <iostream>
 
-#include <glad/glad.h>
 #include "shader.h"
 
 class Cube {

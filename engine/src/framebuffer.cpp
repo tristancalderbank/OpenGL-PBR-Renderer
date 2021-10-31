@@ -1,5 +1,7 @@
 #include "framebuffer.h"
 
+#include <glad/glad.h>
+
 Framebuffer::Framebuffer(int width, int height) : width(width), height(height) {}
 
 void

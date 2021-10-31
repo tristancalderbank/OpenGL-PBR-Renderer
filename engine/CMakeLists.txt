@@ -2,6 +2,7 @@ add_library(Engine
         src/camera.cpp
         src/cube.cpp
         src/cubemapcube.cpp
+        src/engine.cpp
         src/framebuffer.cpp
         src/fullscreenquad.cpp
         src/hdrtexture.cpp
@@ -14,6 +15,7 @@ add_library(Engine
         src/ibl/specularmap.cpp
         src/mesh.cpp
         src/model.cpp
+        src/rendermanager.cpp
         src/shader.cpp
         src/skybox.cpp
         src/timer.cpp

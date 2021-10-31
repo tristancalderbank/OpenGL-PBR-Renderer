@@ -8,6 +8,10 @@ Model::Model(std::string path) {
     loadModel(path);
 }
 
+Model::Model(std::string path, std::shared_ptr<Material> material) : materialOverride(material) {
+    loadModel(path);
+}
+
 void
 Model::Draw(Shader& shader) {
     for (auto& mesh : meshes) {
@@ -52,6 +56,10 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     Material material;
+
+    if (materialOverride) {
+        material = *materialOverride;
+    }
 
     // vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -110,38 +118,41 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         }
     }
 
-    if (mesh->mMaterialIndex >= 0) {
-        aiMaterial* aiMaterial = scene->mMaterials[mesh->mMaterialIndex];
+    // material
+    if (!materialOverride) {
+        if (mesh->mMaterialIndex >= 0) {
+            aiMaterial* aiMaterial = scene->mMaterials[mesh->mMaterialIndex];
 
-        // albedo
-        if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE)) {
-            material.useTextureAlbedo = true;
-            material.textureAlbedo = loadMaterialTexture(aiMaterial, aiTextureType_DIFFUSE);
-        }
+            // albedo
+            if (aiMaterial->GetTextureCount(aiTextureType_DIFFUSE)) {
+                material.useTextureAlbedo = true;
+                material.textureAlbedo = loadMaterialTexture(aiMaterial, aiTextureType_DIFFUSE);
+            }
 
-        // metallicRoughness (in gltf 2.0 they are combined in one texture)
-        if (aiMaterial->GetTextureCount(aiTextureType_UNKNOWN)) {
-            // defined here in assimp https://github.com/assimp/assimp/blob/master/include/assimp/pbrmaterial.h#L57
-            material.useTextureMetallicRoughness = true;
-            material.textureMetallicRoughness = loadMaterialTexture(aiMaterial, aiTextureType_UNKNOWN);
-        }
+            // metallicRoughness (in gltf 2.0 they are combined in one texture)
+            if (aiMaterial->GetTextureCount(aiTextureType_UNKNOWN)) {
+                // defined here in assimp https://github.com/assimp/assimp/blob/master/include/assimp/pbrmaterial.h#L57
+                material.useTextureMetallicRoughness = true;
+                material.textureMetallicRoughness = loadMaterialTexture(aiMaterial, aiTextureType_UNKNOWN);
+            }
 
-        // normal
-        if (aiMaterial->GetTextureCount(aiTextureType_NORMALS)) {
-            material.useTextureNormal = true;
-            material.textureNormal = loadMaterialTexture(aiMaterial, aiTextureType_NORMALS);
-        }
+            // normal
+            if (aiMaterial->GetTextureCount(aiTextureType_NORMALS)) {
+                material.useTextureNormal = true;
+                material.textureNormal = loadMaterialTexture(aiMaterial, aiTextureType_NORMALS);
+            }
 
-        // ambient occlusion
-        if (aiMaterial->GetTextureCount(aiTextureType_LIGHTMAP)) {
-            material.useTextureAmbientOcclusion = true;
-            material.textureAmbientOcclusion = loadMaterialTexture(aiMaterial, aiTextureType_LIGHTMAP);
-        }
+            // ambient occlusion
+            if (aiMaterial->GetTextureCount(aiTextureType_LIGHTMAP)) {
+                material.useTextureAmbientOcclusion = true;
+                material.textureAmbientOcclusion = loadMaterialTexture(aiMaterial, aiTextureType_LIGHTMAP);
+            }
 
-        // emissive
-        if (aiMaterial->GetTextureCount(aiTextureType_EMISSIVE)) {
-            material.useTextureEmissive = true;
-            material.textureEmissive = loadMaterialTexture(aiMaterial, aiTextureType_EMISSIVE);
+            // emissive
+            if (aiMaterial->GetTextureCount(aiTextureType_EMISSIVE)) {
+                material.useTextureEmissive = true;
+                material.textureEmissive = loadMaterialTexture(aiMaterial, aiTextureType_EMISSIVE);
+            }
         }
     }
 

@@ -14,7 +14,18 @@
  */
 class Model {
 public:
+    /**
+     * Load a glTF 2.0 model.
+     * @param path
+     */
 	Model(std::string path);
+
+    /**
+     * Load a glTF 2.0 model using a provided material. This will ignore any material
+     * present in the model file.
+     * @param path
+     */
+    Model(std::string path, std::shared_ptr<Material> material);
 	void Draw(Shader& shader);
 
 private:
@@ -35,4 +46,5 @@ private:
     std::vector<Mesh> meshes;
     std::string directory;
     std::map<std::string, std::shared_ptr<Texture>> texturesLoaded;
+    std::shared_ptr<Material> materialOverride;
 };

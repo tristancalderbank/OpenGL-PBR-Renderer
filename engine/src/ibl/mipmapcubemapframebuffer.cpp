@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include <glad/glad.h>
+
 MipmapCubemapFramebuffer::MipmapCubemapFramebuffer(unsigned int width, unsigned int height) : width(width), height(height), mipLevel(0) {
     // framebuffer
     glGenFramebuffers(1, &framebufferId);

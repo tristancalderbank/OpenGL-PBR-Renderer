@@ -2,7 +2,6 @@
 
 #include <vector>
 
-#include <glad/glad.h>
 #include "shader.h"
 
 const unsigned int QUAD_NUM_TRIANGLES = 6;

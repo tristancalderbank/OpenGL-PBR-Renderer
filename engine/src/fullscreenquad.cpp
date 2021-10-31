@@ -1,5 +1,7 @@
 #include "fullscreenquad.h"
 
+#include <glad/glad.h>
+
 FullscreenQuad::FullscreenQuad() {
     loadVertexData();
 };

@@ -38,8 +38,6 @@ uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 
 // PBR
-uniform float ambientOcclusion;
-
 // IBL precomputed maps
 const float PREFILTERED_ENV_MAP_LOD = 4.0; // how many mipmap levels
 

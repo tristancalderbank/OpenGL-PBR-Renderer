@@ -1,5 +1,7 @@
 #include "ibl/cubemapframebuffer.h"
 
+#include <glad/glad.h>
+
 CubemapFramebuffer::CubemapFramebuffer(int width, int height) : width(width), height(height) {
     // framebuffer
     glGenFramebuffers(1, &framebufferId);

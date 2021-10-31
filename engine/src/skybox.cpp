@@ -1,5 +1,7 @@
 #include "skybox.h"
 
+#include <glad/glad.h>
+
 Skybox::Skybox(std::string textureDirectoryPath) {
     loadCubemapTextures(textureDirectoryPath);
     cube = std::make_unique<Cube>();
@@ -10,8 +12,7 @@ Skybox::Skybox(unsigned int textureId) : textureId(textureId) {
 }
 
 void
-Skybox::Draw(Shader &shader) {
-    shader.setInt("skybox", 0); // set skybox sampler to slot 0
+Skybox::Draw() {
 
     // default depth buffer value is 1.0
     // skybox depth is 1.0 everywhere

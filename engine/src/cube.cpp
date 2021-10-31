@@ -1,5 +1,7 @@
 #include "cube.h"
 
+#include <glad/glad.h>
+
 Cube::Cube() {
     loadVertexData();
 }

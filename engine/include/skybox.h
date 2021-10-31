@@ -4,11 +4,9 @@
 #include <string>
 #include <iostream>
 
-#include <glad/glad.h>
 #include "stb_image/stb_image.h"
 
 #include "cube.h"
-#include "shader.h"
 
 class Skybox {
 
@@ -24,7 +22,7 @@ public:
 	 * @param textureId
 	 */
     Skybox(unsigned int textureId);
-    void Draw(Shader &shader);
+    void Draw();
 
 private:
     void loadCubemapTextures(std::string textureDirectoryPath);
