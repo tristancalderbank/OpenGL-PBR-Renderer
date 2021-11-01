@@ -25,5 +25,6 @@ A toy PBR rendering engine written in C++ using OpenGL.
 
 ### References
 
+* Models: https://github.com/KhronosGroup/glTF-Sample-Models
 * Learn OpenGL: https://learnopengl.com
 * Generating low discrepancy points on a hemisphere: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html#sec-SourceCode
