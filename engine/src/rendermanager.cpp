@@ -12,9 +12,9 @@
 #include "model.h"
 
 // viewport
-int INITIAL_VIEWPORT_WIDTH = 800;
-int INITIAL_VIEWPORT_HEIGHT = 600;
-const float IMGUI_FONT_SCALE = 1.0f;
+int INITIAL_VIEWPORT_WIDTH = 3000;
+int INITIAL_VIEWPORT_HEIGHT = 2000;
+const float IMGUI_FONT_SCALE = 2.0f;
 
 // camera
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);

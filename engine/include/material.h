@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "constants.h"
 #include "texture.h"
 
