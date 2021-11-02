@@ -13,6 +13,7 @@ A toy PBR rendering engine written in C++ using OpenGL.
 * Separate post-processing render step with tonemapping/gamma correction
 * ImGui for debugging/tweaking parameters
 * Free flight camera (WASD + mouse)
+* Cross platform: Windows/MacOS
 
 ### Dependencies
 
