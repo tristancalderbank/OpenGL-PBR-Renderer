@@ -2,6 +2,8 @@
 
 A toy PBR rendering engine written in C++ using OpenGL.
 
+Real-time video: https://www.youtube.com/watch?v=UCdlUd6DJs4
+
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/pbr_first_implementation.png">
 
 ### Features
