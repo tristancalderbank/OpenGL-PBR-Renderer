@@ -52,6 +52,8 @@ void EquirectangularCubemap::compute() {
         hdriCube->Draw(*hdriShader);
     }
 
+    framebuffer->generateMipmap();
+
     timer.logDifference("Rendered equirectangular cubemap");
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -46,6 +46,13 @@ void CubemapFramebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferId);
 }
 
+void CubemapFramebuffer::generateMipmap()
+{
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureId);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+}
+
 void CubemapFramebuffer::setCubeFace(unsigned int index) {
     glFramebufferTexture2D(
         GL_FRAMEBUFFER,

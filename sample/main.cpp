@@ -13,7 +13,9 @@
 int main(int argc, const char * argv[])
 {
     EngineConfig engineConfig;
-    engineConfig.imguiFontScale = 2.0f;
+    engineConfig.imguiFontScale = 1.0f;
+    engineConfig.initialViewportWidth = 800;
+    engineConfig.initialViewportHeight = 600;
     engineConfig.hdriPath = "resources/hdr/circus_backstage.hdr";
 
     Engine engine(engineConfig);

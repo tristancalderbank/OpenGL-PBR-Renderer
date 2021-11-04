@@ -8,6 +8,7 @@ uniform samplerCube environmentCubemap;
 
 const float PI = 3.14159265359;
 const uint SAMPLE_COUNT = 1024u;
+const float FACE_RESOLUTION = 512.0;
 
 // this mirrors the number in binary around the decimal point
 // aka return: a0 / 2 + a1 / 4 + a2 / 8 + ...
@@ -60,6 +61,36 @@ vec3 importanceSampleGGX(vec2 unitSquareSample, vec3 N, float roughness) {
 	return normalize(sampleVector);
 }
 
+float distributionGGX(vec3 N, vec3 H, float roughness) {
+	float a = roughness * roughness;
+	float a2 = a*a;
+	float NdotH = max(dot(N, H), 0.0);
+	float NdotH2 = NdotH*NdotH;
+
+	float numerator = a2;
+	float denominator = (NdotH2 * (a2 - 1.0) + 1.0);
+	denominator = PI * denominator * denominator;
+
+	return numerator / denominator;
+}
+
+float getSampleMipLevel(vec3 V, vec3 N, vec3 H, float roughness) {
+	// source: https://chetanjags.wordpress.com/2015/08/26/image-based-lighting/
+	// source: https://learnopengl.com/PBR/IBL/Specular-IBL
+	// the idea here is to use higher mip levels for samples with lower PDF value
+	// the less likely the sample is to occur the more surrounding samples we use to
+	// avoid aliasing
+	float distribution = distributionGGX(N, H, roughness);
+	float NdotH = max(dot(N, H), 0.0);
+	float HdotV = max(dot(H, V), 0.0);
+	float pdf = distribution * NdotH / (4.0 * HdotV) + 0.0001;
+
+	float saTexel  = 4.0 * PI / (6.0 * FACE_RESOLUTION * FACE_RESOLUTION);
+	float saSample = 1.0 / (float(SAMPLE_COUNT) * pdf + 0.0001);
+
+	return roughness == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+}
+
 void main() {
 	vec3 N = normalize(modelCoordinates);
 	// epic games approximation, view direction is aligned with normal
@@ -75,7 +106,8 @@ void main() {
 
 		float NdotL = max(dot(N, L), 0.0); // don't forget from the integral
 		if(NdotL > 0.0) { // stuff with negative dot product is behind our hemisphere
-			outputColor += texture(environmentCubemap, L).rgb * NdotL;
+			float mipLevel = getSampleMipLevel(V, N, H, roughness);
+			outputColor += textureLod(environmentCubemap, L, mipLevel).rgb * NdotL;
 			totalWeight += NdotL;
 		}
 	}
