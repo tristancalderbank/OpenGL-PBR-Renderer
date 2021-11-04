@@ -1,12 +1,11 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "imgui/imgui.h"
+#include "windowmanager.h"
 
 class Camera {
-
 public:
     Camera(
         glm::vec3 up,
@@ -17,12 +16,13 @@ public:
         int windowHeight
     );
 
-    void setWindowDimensions(int width, int height);
+    void setWindowDimensions(const WindowSize &windowSize);
     glm::vec3 getPosition();
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
-    void processKeyboard(GLFWwindow* window, float frameTimeDelta);
-    void processMouseMovement(GLFWwindow* window, double xPos, double yPos);
+    void processActions(float frameTimeDelta, const std::set<KeymapAction>& actions);
+    void processMouse(const MousePosition &mousePosition);
+    void resetMouse();
     void drawDebugPanel();
 
 private:

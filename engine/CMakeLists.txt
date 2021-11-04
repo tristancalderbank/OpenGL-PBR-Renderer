@@ -1,5 +1,6 @@
 add_library(Engine
         src/camera.cpp
+        src/cameramanager.cpp
         src/cube.cpp
         src/cubemapcube.cpp
         src/engine.cpp
@@ -14,12 +15,15 @@ add_library(Engine
         src/ibl/hdricube.cpp
         src/ibl/mipmapcubemapframebuffer.cpp
         src/ibl/specularmap.cpp
+        src/inputmanager.cpp
         src/mesh.cpp
         src/model.cpp
         src/rendermanager.cpp
+        src/rotatingcamera.cpp
         src/shader.cpp
         src/skybox.cpp
         src/timer.cpp
+        src/windowmanager.cpp
         )
 
 target_include_directories(Engine

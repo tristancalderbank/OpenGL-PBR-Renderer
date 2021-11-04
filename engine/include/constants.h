@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 
 namespace constants {
+    const auto PI = atan(1)*4;
+
     const auto mIndentity4 = glm::mat4(1.0f);
     const auto origin = glm::vec3(0.0f, 0.0f, 0.0f);
     const auto unitX = glm::vec3(1.0f, 0.0f, 0.0f);

@@ -29,9 +29,9 @@ Camera::Camera(
 }
 
 void
-Camera::setWindowDimensions(int width, int height) {
-    windowDimensions[0] = width;
-    windowDimensions[1] = height;
+Camera::setWindowDimensions(const WindowSize &windowSize) {
+    windowDimensions[0] = windowSize.width;
+    windowDimensions[1] = windowSize.height;
 }
 
 glm::vec3
@@ -51,54 +51,59 @@ Camera::getProjectionMatrix() {
 }
 
 void
-Camera::processKeyboard(GLFWwindow* window, float frameTimeDelta) {
+Camera::processActions(float frameTimeDelta, const std::set<KeymapAction>& actions) {
     float normalizedSpeed = speed * frameTimeDelta;
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        position -= normalizedSpeed * getDirection();
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    if (actions.find(KeymapAction::MOVE_FORWARD) != actions.end()) {
         position += normalizedSpeed * getDirection();
     }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        position += normalizedSpeed * glm::cross(getDirection(), up);
+    if (actions.find(KeymapAction::MOVE_BACKWARD) != actions.end()) {
+        position -= normalizedSpeed * getDirection();
     }
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (actions.find(KeymapAction::MOVE_LEFT) != actions.end()) {
         position -= normalizedSpeed * glm::cross(getDirection(), up);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        position -= normalizedSpeed * up;
+    if (actions.find(KeymapAction::MOVE_RIGHT) != actions.end()) {
+        position += normalizedSpeed * glm::cross(getDirection(), up);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+    if (actions.find(KeymapAction::MOVE_UP) != actions.end()) {
         position += normalizedSpeed * up;
+    }
+
+    if (actions.find(KeymapAction::MOVE_DOWN) != actions.end()) {
+        position -= normalizedSpeed * up;
     }
 }
 
 void
-Camera::processMouseMovement(GLFWwindow* window, double xPos, double yPos) {
+Camera::processMouse(const MousePosition &mousePosition) {
 
     if (!initialMousePositionSet) {
-        lastMouseX = xPos;
-        lastMouseY = yPos;
+        lastMouseX = mousePosition.x;
+        lastMouseY = mousePosition.y;
         initialMousePositionSet = true;
     }
 
-    float dX = lastMouseX - xPos;
-    float dY = lastMouseY - yPos;
+    float dX = lastMouseX - mousePosition.x;
+    float dY = lastMouseY - mousePosition.y;
 
-    lastMouseX = xPos;
-    lastMouseY = yPos;
+    lastMouseX = mousePosition.x;
+    lastMouseY = mousePosition.y;
 
     yaw += dX * sensitivity;
     pitch += dY * sensitivity;
 
     pitch = std::min(pitch, 89.0f); // can't go to 90 because of lookAt up vector won't work
     pitch = std::max(pitch, -89.0f);
+}
+
+void
+Camera::resetMouse() {
+    initialMousePositionSet = false;
 }
 
 void

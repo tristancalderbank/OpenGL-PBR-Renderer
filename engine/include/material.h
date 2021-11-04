@@ -15,7 +15,7 @@ struct Material {
     glm::vec3 albedo = constants::colorRed;
     float metallic = 1.0f;
     float roughness = 0.0f;
-    float ambientOcclusion = 0.0f;
+    float ambientOcclusion = 1.0f;
     glm::vec3 emissive = glm::vec3(0.0, 0.0, 0.0);
 
     std::shared_ptr<Texture> textureAlbedo;
