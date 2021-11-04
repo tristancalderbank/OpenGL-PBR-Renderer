@@ -6,7 +6,7 @@ Real-time video: https://www.youtube.com/watch?v=UCdlUd6DJs4
 
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/pbr_first_implementation.png">
 
-<img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/metallicroughness.png">
+<img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/metallicroughnesslabelled.png">
 
 ### Features
 * PBR lighting with indirect image-based lighting (IBL)
