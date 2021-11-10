@@ -6,7 +6,6 @@
 
 #include "constants.h"
 #include "cube.h"
-#include "framebuffer.h"
 #include "fullscreenquad.h"
 #include "timer.h"
 #include "ibl/mipmapcubemapframebuffer.h"

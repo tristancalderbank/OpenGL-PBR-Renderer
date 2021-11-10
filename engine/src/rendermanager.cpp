@@ -8,8 +8,6 @@
 #include "stb_image.h"
 
 #include "camera.h"
-#include "framebuffer.h"
-
 
 RenderManager::RenderManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<CameraManager> cameraManager) : mEngineConfig(engineConfig), mWindowManager(windowManager), mCameraManager(cameraManager) {
 
@@ -96,12 +94,13 @@ void RenderManager::render()
     ImGui::CollapsingHeader("General");
     ImGui::Text("Average FPS %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::CollapsingHeader("Post-processing");
+    ImGui::SliderFloat("Bloom Brightness Cutoff", &mBloomBrightnessCutoff, 0.01, 5.0);
     ImGui::Checkbox("HDR Tone Mapping (Reinhard)", &mTonemappingEnabled);
     ImGui::SliderFloat("Gamma Correction", &mGammaCorrectionFactor, 1.0, 3.0);
 
     // Rendering
     // Main pass
-    glBindFramebuffer(GL_FRAMEBUFFER, mFramebuffer->getFramebufferHandle());
+    glBindFramebuffer(GL_FRAMEBUFFER, mFramebuffer->getFramebufferId());
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -127,6 +126,9 @@ void RenderManager::render()
     glActiveTexture(GL_TEXTURE0 + TEXTURE_UNIT_BRDF_CONVOLUTION_MAP);
     mPbrShader->setInt("brdfConvolutionMap", TEXTURE_UNIT_BRDF_CONVOLUTION_MAP);
     glBindTexture(GL_TEXTURE_2D, mIblSpecularMap->getBrdfConvolutionMapId());
+
+    // post stuff for main shader
+    mPbrShader->setFloat("bloomBrightnessCutoff", mBloomBrightnessCutoff);
 
     for (auto entity : mScene->mEntities) {
         glm::mat4 model = glm::mat4(1.0f);
@@ -161,7 +163,7 @@ void RenderManager::render()
 
     glActiveTexture(GL_TEXTURE0);
     mPostShader->setInt("colorTexture", 0);
-    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getColorTextureHandle());
+    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getBloomColorTextureId());
     mFullscreenQuad->Draw();
 
     // draw ImGui

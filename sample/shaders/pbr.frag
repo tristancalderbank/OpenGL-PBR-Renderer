@@ -1,8 +1,12 @@
 #version 330 core
 
 #define PI 3.1415926535897932384626433832795
+#define GREYSCALE_WEIGHT_VECTOR vec3(0.2126, 0.7152, 0.0722)
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor; // regular output
+layout (location = 1) out vec4 BloomColor; // output to be used by bloom shader
+
+// vertex attributes
 in vec3 worldCoordinates;
 in vec2 textureCoordinates;
 in vec3 tangent;
@@ -44,6 +48,9 @@ const float PREFILTERED_ENV_MAP_LOD = 4.0; // how many mipmap levels
 uniform samplerCube diffuseIrradianceMap;
 uniform samplerCube prefilteredEnvMap;
 uniform sampler2D brdfConvolutionMap;
+
+// Post parameters
+uniform float bloomBrightnessCutoff;
 
 // Fresnel function (Fresnel-Schlick approximation)
 //
@@ -235,5 +242,13 @@ void main() {
 	// Combine emissive + indirect + direct
 	vec3 color = emissive + ambient + Lo;
 
+	// Outputs
+
+	// main color output
 	FragColor = vec4(color, 1.0);
+
+	// bloom color output
+	// use greyscale conversion here because not all colors are equally "bright"
+    float greyscaleBrightness = dot(FragColor.rgb, GREYSCALE_WEIGHT_VECTOR);
+	BloomColor = greyscaleBrightness > bloomBrightnessCutoff ? FragColor : vec4(0.0, 0.0, 0.0, 1.0);
 }

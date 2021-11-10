@@ -49,6 +49,7 @@ private:
     // post-processing
     bool mTonemappingEnabled = false;
     float mGammaCorrectionFactor = 2.2;
+    float mBloomBrightnessCutoff = 1.0; // fragments with brightness above this are blurred
     std::unique_ptr<FullscreenQuad> mFullscreenQuad;
 
     // shaders
