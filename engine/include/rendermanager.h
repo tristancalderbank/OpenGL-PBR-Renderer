@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "glfw3.h"
 
+#include "bloomframebuffer.h"
 #include "cameramanager.h"
 #include "engineconfig.h"
 #include "framebuffer.h"
@@ -34,6 +35,7 @@ private:
 
     // framebuffers
     std::unique_ptr<Framebuffer> mFramebuffer;
+    std::unique_ptr<BloomFramebuffer> mBloomFramebuffers[2];
 
     // pre-computed IBL stuff
     std::unique_ptr<EquirectangularCubemap> mIblEquirectangularCubemap;
@@ -47,6 +49,8 @@ private:
     std::shared_ptr<Scene> mScene;
 
     // post-processing
+    bool mBloomEnabled = true;
+    int mBloomIterations = 10;
     bool mTonemappingEnabled = false;
     float mGammaCorrectionFactor = 2.2;
     float mBloomBrightnessCutoff = 1.0; // fragments with brightness above this are blurred
@@ -54,6 +58,7 @@ private:
 
     // shaders
     std::unique_ptr<Shader> mPbrShader;
+    std::unique_ptr<Shader> mBloomShader;
     std::unique_ptr<Shader> mPostShader;
     std::unique_ptr<Shader> mSkyboxShader;
 };

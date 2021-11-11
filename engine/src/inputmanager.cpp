@@ -1,5 +1,3 @@
-#pragma once
-
 #include "inputmanager.h"
 
 #include <iostream>

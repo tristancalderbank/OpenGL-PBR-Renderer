@@ -1,4 +1,5 @@
 add_library(Engine
+        src/bloomframebuffer.cpp
         src/camera.cpp
         src/cameramanager.cpp
         src/cube.cpp

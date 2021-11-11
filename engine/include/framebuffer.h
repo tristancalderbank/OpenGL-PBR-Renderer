@@ -6,6 +6,7 @@ class Framebuffer {
 public:
     Framebuffer(int width, int height);
     void init();
+    void bind();
     void resize(int width, int height);
     unsigned int getFramebufferId();
     unsigned int getColorTextureId();

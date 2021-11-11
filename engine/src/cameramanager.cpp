@@ -1,5 +1,3 @@
-#pragma once
-
 #include "cameramanager.h"
 
 #include "camera.h"

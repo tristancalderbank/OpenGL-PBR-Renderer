@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     // retrieve vertex/fragment source
     std::string vertexCode;
     std::string fragmentCode;
@@ -112,6 +112,10 @@ void Shader::setInt(const std::string& name, int value) const {
 void Shader::setFloat(const std::string& name, float value) const {
     glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 };
+
+void Shader::setVec2(const std::string& name, glm::vec2& value) const {
+    glUniform2f(glGetUniformLocation(id, name.c_str()), value[0], value[1]);
+}
 
 void Shader::setVec3(const std::string& name, glm::vec3& value) const {
     glUniform3f(glGetUniformLocation(id, name.c_str()), value[0], value[1], value[2]);

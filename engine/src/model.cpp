@@ -42,8 +42,6 @@ Model::loadModel(std::string path, bool flipTexturesVertically) {
 // recursively load all meshes in the node tree
 void
 Model::processNode(aiNode* node, const aiScene* scene) {
-    std::cout << "Process node: " << node->mName.C_Str() << std::endl;
-
     // process all of this node's meshes if it has any
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];

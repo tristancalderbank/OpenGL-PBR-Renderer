@@ -9,5 +9,6 @@ struct EngineConfig {
     int initialViewportHeight = 2000;
     float imguiFontScale = 1.0;
 
+    std::string engineRootPath;
     std::string hdriPath;
 };

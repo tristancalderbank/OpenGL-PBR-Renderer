@@ -1,5 +1,3 @@
-#pragma once
-
 #include "windowmanager.h"
 
 #include <iostream>
