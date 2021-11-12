@@ -22,7 +22,7 @@ Metallic vs. Roughness
 
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/metallicroughnesslabelled.png">
 
-Bloom 
+Bloom (Gaussian blur, blended from 6 mip levels for maximum spread)
 
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/bloom.png">
 
