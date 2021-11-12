@@ -15,7 +15,11 @@ void main() {
 
 	// bloom
 	if (bloomEnabled) {
-		vec3 bloomColor = texture(bloomTexture, textureCoordinates).rgb;
+		vec3 bloomColor = vec3(0.0, 0.0, 0.0);
+		for (int i = 0; i <= 5; i++) {
+			bloomColor += textureLod(bloomTexture, textureCoordinates, i).rgb;
+		}
+
 		color += bloomColor * bloomIntensity;
 	}
 

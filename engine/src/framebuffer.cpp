@@ -4,31 +4,37 @@
 
 Framebuffer::Framebuffer(int width, int height) : width(width), height(height) {}
 
-static void initColorTexture(unsigned int colorTextureId, int attachmentSlot, int width, int height) {
-    glBindTexture(GL_TEXTURE_2D, colorTextureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // attach the color texture to the framebuffer
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentSlot, GL_TEXTURE_2D, colorTextureId, 0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 void
 Framebuffer::init() {
     // create the framebuffer
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-    // create a color texture
+    // create color texture
     glGenTextures(1, &colorTexture);
-    glGenTextures(1, &bloomColorTexture);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
 
-    initColorTexture(colorTexture, GL_COLOR_ATTACHMENT0, width, height);
-    initColorTexture(bloomColorTexture, GL_COLOR_ATTACHMENT1, width, height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+    // create bloom texture
+    glGenTextures(1, &bloomColorTexture);
+    glBindTexture(GL_TEXTURE_2D, bloomColorTexture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bloomColorTexture, 0);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // create depth/stencil buffer
     // we use renderbuffer which is similar to textures except you can't sample it

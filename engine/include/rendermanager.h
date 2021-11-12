@@ -21,6 +21,12 @@ const int TEXTURE_UNIT_DIFFUSE_IRRADIANCE_MAP = 10;
 const int TEXTURE_UNIT_PREFILTERED_ENV_MAP = 11;
 const int TEXTURE_UNIT_BRDF_CONVOLUTION_MAP = 12;
 
+enum BloomDirection {
+    BOTH = 0,
+    HORIZONTAL = 1,
+    VERTICAL = 2
+};
+
 class RenderManager {
 public:
     RenderManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<CameraManager> cameraManager);
@@ -29,6 +35,8 @@ public:
     void startGuiFrame();
     void render();
 private:
+    void renderBloom();
+private:
     EngineConfig mEngineConfig;
     std::shared_ptr<WindowManager> mWindowManager;
     std::shared_ptr<CameraManager> mCameraManager;
@@ -36,6 +44,7 @@ private:
     // framebuffers
     std::unique_ptr<Framebuffer> mFramebuffer;
     std::unique_ptr<BloomFramebuffer> mBloomFramebuffers[2];
+    unsigned int mBloomFramebufferResult;
 
     // pre-computed IBL stuff
     std::unique_ptr<EquirectangularCubemap> mIblEquirectangularCubemap;
@@ -52,6 +61,7 @@ private:
     bool mBloomEnabled = true;
     float mBloomIntensity = 1.0;
     int mBloomIterations = 10;
+    int mBloomDirection = BloomDirection::BOTH;
     bool mTonemappingEnabled = false;
     float mGammaCorrectionFactor = 2.2;
     float mBloomBrightnessCutoff = 1.0; // fragments with brightness above this are blurred

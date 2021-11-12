@@ -13,9 +13,9 @@
 int main(int argc, const char * argv[])
 {
     EngineConfig engineConfig;
-    engineConfig.imguiFontScale = 1.0f;
-    engineConfig.initialViewportWidth = 1200;
-    engineConfig.initialViewportHeight = 800;
+    engineConfig.imguiFontScale = 2.0f;
+    engineConfig.initialViewportWidth = 3000;
+    engineConfig.initialViewportHeight = 2000;
     engineConfig.engineRootPath = "../engine";
     engineConfig.hdriPath = "resources/hdr/barcelona_rooftop.hdr";
 

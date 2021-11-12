@@ -89,6 +89,54 @@ void RenderManager::startGuiFrame() {
     ImGui::Begin("NanoEngine");
 }
 
+void RenderManager::renderBloom() {
+    // Bloom pass
+    glm::vec2 blurDirectionX = glm::vec2(1.0f, 0.0f);
+    glm::vec2 blurDirectionY = glm::vec2(0.0f, 1.0f);
+
+    switch (mBloomDirection) {
+        case BloomDirection::HORIZONTAL:
+            blurDirectionY = blurDirectionX;
+            break;
+        case BloomDirection::VERTICAL:
+            blurDirectionX = blurDirectionY;
+        default:
+            break;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getBloomColorTextureId());
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    mBloomShader->use();
+
+    for (auto mipLevel = 0; mipLevel <= 5; mipLevel++) {
+        mBloomFramebuffers[0]->setMipLevel(mipLevel);
+        mBloomFramebuffers[1]->setMipLevel(mipLevel);
+
+        // first iteration we use the bloom buffer from the main render pass
+        mBloomFramebuffers[0]->bind();
+        glBindTexture(GL_TEXTURE_2D, mFramebuffer->getBloomColorTextureId());
+        mBloomShader->setInt("sampleMipLevel", mipLevel);
+        mBloomShader->setVec2("blurDirection", blurDirectionX);
+
+        mFullscreenQuad->Draw();
+
+        unsigned int bloomFramebuffer = 1; // which buffer to use
+
+        for (auto i = 1; i < mBloomIterations; i++) {
+            unsigned int sourceBuffer = bloomFramebuffer == 1 ? 0 : 1;
+            mBloomFramebuffers[bloomFramebuffer]->bind();
+            auto blurDirection = bloomFramebuffer == 1 ? blurDirectionY : blurDirectionX;
+            mBloomShader->setVec2("blurDirection", blurDirection);
+            glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[sourceBuffer]->getColorTextureId());
+            mFullscreenQuad->Draw();
+            bloomFramebuffer = sourceBuffer;
+        }
+
+        mBloomFramebufferResult = bloomFramebuffer;
+    }
+}
+
 void RenderManager::render()
 {
     if (mWindowManager->windowResized()) {
@@ -106,11 +154,15 @@ void RenderManager::render()
 
     ImGui::CollapsingHeader("Post-processing");
 
-    ImGui::Text("Bloom");
+    ImGui::Text("Bloom (Gaussian)");
     ImGui::Checkbox("Enabled", &mBloomEnabled);
     ImGui::SliderFloat("Intensity", &mBloomIntensity, 0.0, 5.0);
     ImGui::SliderFloat("Threshold", &mBloomBrightnessCutoff, 0.01, 5.0);
     ImGui::SliderInt("Blur Iterations", &mBloomIterations, 2, 20);
+    ImGui::Text("Direction: "); ImGui::SameLine();
+    ImGui::RadioButton("Both", &mBloomDirection, 0); ImGui::SameLine();
+    ImGui::RadioButton("Horizontal", &mBloomDirection, 1); ImGui::SameLine();
+    ImGui::RadioButton("Vertical", &mBloomDirection, 2);
 
     ImGui::Text("Post");
     ImGui::Checkbox("HDR Tone Mapping (Reinhard)", &mTonemappingEnabled);
@@ -119,6 +171,7 @@ void RenderManager::render()
     // Rendering
     // Main pass
     mFramebuffer->bind();
+    glViewport(0, 0, mWindowManager->getWindowSize().width, mWindowManager->getWindowSize().height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -172,33 +225,10 @@ void RenderManager::render()
     mSkyboxShader->setFloat("bloomBrightnessCutoff", mBloomBrightnessCutoff);
     mSkybox->Draw();
 
-    // Bloom pass
-    glm::vec2 blurDirectionX = glm::vec2(1.0f, 0.0f);
-    glm::vec2 blurDirectionY = glm::vec2(0.0f, 1.0f);
-
-    mBloomFramebuffers[0]->bind();
-    mBloomShader->use();
-    // first iteration we use the bloom buffer from the main render pass
-    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getBloomColorTextureId());
-    glGenerateMipmap(GL_TEXTURE_2D);
-    mBloomShader->setInt("sampleMipLevel", 5);
-    mBloomShader->setVec2("blurDirection", blurDirectionX);
-    mFullscreenQuad->Draw();
-    mBloomShader->setInt("sampleMipLevel", 0);
-
-    unsigned int bloomFramebuffer = 1; // which buffer to use
-
-    for (auto i = 1; i < mBloomIterations; i++) {
-        unsigned int sourceBuffer = bloomFramebuffer == 1 ? 0 : 1;
-        mBloomFramebuffers[bloomFramebuffer]->bind();
-        auto blurDirection = bloomFramebuffer == 1 ? blurDirectionY : blurDirectionX;
-        mBloomShader->setVec2("blurDirection", blurDirection);
-        glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[sourceBuffer]->getColorTextureId());
-        mFullscreenQuad->Draw();
-        bloomFramebuffer = sourceBuffer;
-    }
+    renderBloom();
 
     // Post-processing pass
+    glViewport(0, 0, mWindowManager->getWindowSize().width, mWindowManager->getWindowSize().height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // switch back to default fb
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     mPostShader->use();
@@ -209,11 +239,11 @@ void RenderManager::render()
     mPostShader->setFloat("gammaCorrectionFactor", mGammaCorrectionFactor);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[bloomFramebuffer]->getColorTextureId());
+    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getColorTextureId());
     mPostShader->setInt("colorTexture", 0);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[bloomFramebuffer]->getColorTextureId());
+    glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[mBloomFramebufferResult]->getColorTextureId());
     mPostShader->setInt("bloomTexture", 1);
 
     mFullscreenQuad->Draw();
