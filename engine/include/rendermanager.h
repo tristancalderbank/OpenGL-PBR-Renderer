@@ -50,6 +50,7 @@ private:
 
     // post-processing
     bool mBloomEnabled = true;
+    float mBloomIntensity = 1.0;
     int mBloomIterations = 10;
     bool mTonemappingEnabled = false;
     float mGammaCorrectionFactor = 2.2;

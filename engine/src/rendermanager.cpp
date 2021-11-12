@@ -101,10 +101,18 @@ void RenderManager::render()
 
     ImGui::CollapsingHeader("General");
     ImGui::Text("Average FPS %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+    mCameraManager->drawDebugPanel();
+
     ImGui::CollapsingHeader("Post-processing");
-    ImGui::Checkbox("Bloom", &mBloomEnabled);
-    ImGui::SliderFloat("Bloom Brightness Cutoff", &mBloomBrightnessCutoff, 0.01, 5.0);
-    ImGui::SliderInt("Bloom Blur Iterations", &mBloomIterations, 2, 20);
+
+    ImGui::Text("Bloom");
+    ImGui::Checkbox("Enabled", &mBloomEnabled);
+    ImGui::SliderFloat("Intensity", &mBloomIntensity, 0.0, 5.0);
+    ImGui::SliderFloat("Threshold", &mBloomBrightnessCutoff, 0.01, 5.0);
+    ImGui::SliderInt("Blur Iterations", &mBloomIterations, 2, 20);
+
+    ImGui::Text("Post");
     ImGui::Checkbox("HDR Tone Mapping (Reinhard)", &mTonemappingEnabled);
     ImGui::SliderFloat("Gamma Correction", &mGammaCorrectionFactor, 1.0, 3.0);
 
@@ -170,10 +178,13 @@ void RenderManager::render()
 
     mBloomFramebuffers[0]->bind();
     mBloomShader->use();
-    mBloomShader->setVec2("blurDirection", blurDirectionX);
     // first iteration we use the bloom buffer from the main render pass
     glBindTexture(GL_TEXTURE_2D, mFramebuffer->getBloomColorTextureId());
+    glGenerateMipmap(GL_TEXTURE_2D);
+    mBloomShader->setInt("sampleMipLevel", 5);
+    mBloomShader->setVec2("blurDirection", blurDirectionX);
     mFullscreenQuad->Draw();
+    mBloomShader->setInt("sampleMipLevel", 0);
 
     unsigned int bloomFramebuffer = 1; // which buffer to use
 
@@ -193,11 +204,12 @@ void RenderManager::render()
     mPostShader->use();
 
     mPostShader->setBool("bloomEnabled", mBloomEnabled);
+    mPostShader->setFloat("bloomIntensity", mBloomIntensity);
     mPostShader->setBool("tonemappingEnabled", mTonemappingEnabled);
     mPostShader->setFloat("gammaCorrectionFactor", mGammaCorrectionFactor);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mFramebuffer->getColorTextureId());
+    glBindTexture(GL_TEXTURE_2D, mBloomFramebuffers[bloomFramebuffer]->getColorTextureId());
     mPostShader->setInt("colorTexture", 0);
 
     glActiveTexture(GL_TEXTURE1);

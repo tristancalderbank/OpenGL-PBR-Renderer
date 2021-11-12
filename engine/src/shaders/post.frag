@@ -6,6 +6,7 @@ in vec2 textureCoordinates;
 uniform sampler2D colorTexture;
 uniform sampler2D bloomTexture;
 uniform bool bloomEnabled;
+uniform float bloomIntensity;
 uniform bool tonemappingEnabled;
 uniform float gammaCorrectionFactor;
 
@@ -15,7 +16,7 @@ void main() {
 	// bloom
 	if (bloomEnabled) {
 		vec3 bloomColor = texture(bloomTexture, textureCoordinates).rgb;
-		color += bloomColor;
+		color += bloomColor * bloomIntensity;
 	}
 
 	// tonemapping

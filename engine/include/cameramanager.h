@@ -12,6 +12,7 @@ public:
     CameraManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<InputManager> inputManager);
     void startup();
     void update(float frameTimeDelta);
+    void drawDebugPanel();
 
     glm::vec3 getPosition();
     glm::mat4 getViewMatrix();

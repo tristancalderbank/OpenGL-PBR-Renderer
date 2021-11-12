@@ -31,6 +31,7 @@ Real-time video: https://www.youtube.com/watch?v=UCdlUd6DJs4
 ### References
 
 * Models: https://github.com/KhronosGroup/glTF-Sample-Models
+* HDRIs: http://www.hdrlabs.com/sibl/archive.html
 * Learn OpenGL: https://learnopengl.com
 * Image-based lighting: https://chetanjags.wordpress.com/2015/08/26/image-based-lighting/
 * Generating low discrepancy points on a hemisphere: http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html#sec-SourceCode

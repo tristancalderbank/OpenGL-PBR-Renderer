@@ -50,7 +50,11 @@ void CameraManager::update(float frameTimeDelta) {
         mCamera->processMouse(mInputManager->getMousePosition());
         mCamera->processActions(frameTimeDelta, actions);
     }
+}
 
+void
+CameraManager::drawDebugPanel()
+{
     mCamera->drawDebugPanel();
 }
 

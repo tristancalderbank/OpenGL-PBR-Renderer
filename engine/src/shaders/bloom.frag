@@ -8,16 +8,17 @@ in vec2 textureCoordinates;
 const float gaussianBlurWeights[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 
 uniform sampler2D inputColorTexture;
+uniform int sampleMipLevel;
 uniform vec2 blurDirection;
 
 void main() {
 	// size of 1 pixel in [0-1] coordinates
-	vec2 texelSize = 1.0 / textureSize(inputColorTexture, 0);
+	vec2 texelSize = 1.0 / textureSize(inputColorTexture, sampleMipLevel);
 
 	vec3 result = vec3(0.0, 0.0, 0.0);
 
 	// center pixel
-	result += texture(inputColorTexture, textureCoordinates).rgb * gaussianBlurWeights[0];
+	result += textureLod(inputColorTexture, textureCoordinates, sampleMipLevel).rgb * gaussianBlurWeights[0];
 
 	for (int i = 1; i < 5; i++) {
 		vec2 sampleOffset = vec2(
