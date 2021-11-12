@@ -11,13 +11,20 @@ Real-time video: https://www.youtube.com/watch?v=UCdlUd6DJs4
 * Cook-Torrance BRDF
 * glTF 2.0 PBR model loading support
 * Texture support: albedo, metallic, roughness, tangent-space normal, ao, emissive
+* Bloom (Gaussian blur, blended from 6 mip levels for maximum spread)
 * HDRI skyboxes
 * Separate post-processing render step with tonemapping/gamma correction
 * ImGui for debugging/tweaking parameters
 * Free flight camera (WASD + mouse)
 * Cross platform: Windows/MacOS
 
+Metallic vs. Roughness
+
 <img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/metallicroughnesslabelled.png">
+
+Bloom 
+
+<img src="https://github.com/tristancalderbank/NanoEngine/blob/master/screenshots/bloom.png">
 
 ### Dependencies
 
