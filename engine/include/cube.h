@@ -5,6 +5,9 @@
 
 #include "shader.h"
 
+/**
+ * A unit cube mesh with only position coordinates.
+ */
 class Cube {
 public:
     Cube();
@@ -14,9 +17,9 @@ private:
     void loadVertexData();
 
 private: 
-    unsigned int VAO, VBO;
+    unsigned int mVAO, mVBO;
 
-    std::vector<float> vertices = {
+    std::vector<float> mVertices = {
         // positions          
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,

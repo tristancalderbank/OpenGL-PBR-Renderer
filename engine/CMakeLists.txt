@@ -3,7 +3,6 @@ add_library(Engine
         src/camera.cpp
         src/cameramanager.cpp
         src/cube.cpp
-        src/cubemapcube.cpp
         src/engine.cpp
         src/entity.cpp
         src/framebuffer.cpp

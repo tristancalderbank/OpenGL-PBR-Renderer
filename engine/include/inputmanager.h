@@ -8,6 +8,9 @@
 #include "engineconfig.h"
 #include "windowmanager.h"
 
+/**
+ * Actions produced by input depending on the mapping.
+ */
 enum class KeymapAction {
     EXIT,
     ENABLE_MOUSE_CAMERA,
@@ -28,6 +31,10 @@ struct MousePosition {
 };
 
 class WindowManager;
+
+/**
+ * Manages mouse/keyboard.
+ */
 class InputManager {
 public:
     InputManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager);

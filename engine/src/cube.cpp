@@ -9,21 +9,21 @@ Cube::Cube() {
 void
 Cube::Draw() {
     // draw mesh
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    glBindVertexArray(mVAO);
+    glDrawArrays(GL_TRIANGLES, 0, mVertices.size());
     glBindVertexArray(0);
 };
 
 void
 Cube::loadVertexData() {
     // create our data structures
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &mVAO);
+    glGenBuffers(1, &mVBO);
 
-    glBindVertexArray(VAO); // use this VAO for subsequent calls
+    glBindVertexArray(mVAO); // use this VAO for subsequent calls
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // use this VBO for subsequent calls
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW); // copy over the vertex data
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO); // use this VBO for subsequent calls
+    glBufferData(GL_ARRAY_BUFFER, mVertices.size() * sizeof(float), &mVertices[0], GL_STATIC_DRAW); // copy over the vertex data
 
     // setup the locations of vertex data
     // positions

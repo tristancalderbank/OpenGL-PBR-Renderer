@@ -5,6 +5,9 @@
 #include "imgui/imgui.h"
 #include "windowmanager.h"
 
+/**
+ * A free flight first-person camera.
+ */
 class Camera {
 public:
     Camera(
@@ -30,21 +33,21 @@ private:
     float getAspectRatio();
 
 private:
-    float sensitivity = 0.001;
-    float speed = 5.0f;
-    bool initialMousePositionSet = false;
-    double lastMouseX;
-    double lastMouseY;
+    float mSensitivity = 0.001;
+    float mSpeed = 5.0f;
+    bool mInitialMousePositionSet = false;
+    double mLastMouseX;
+    double mLastMouseY;
 
     // view matrix stuff
-	glm::vec3 up;
-	glm::vec3 position;
-    float yaw;
-    float pitch;
+	glm::vec3 mUp;
+	glm::vec3 mPosition;
+    float mYaw;
+    float mPitch;
 
     // projection matrix stuff
-    float fov = 45.0f;
-    int windowDimensions[2] = { 800, 600 }; 
-    float zNear = 0.1f;
-    float zFar = 100.0f;
+    float mFov = 45.0f;
+    int mWindowDimensions[2] = { 800, 600 };
+    float mZNear = 0.1f;
+    float mZFar = 100.0f;
 };

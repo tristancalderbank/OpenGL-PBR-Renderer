@@ -6,8 +6,10 @@
 #include "shader.h"
 #include "hdricube.h"
 
+/**
+ * A cubemap texture created from an equirectangular image.
+ */
 class EquirectangularCubemap {
-
 public:
     /**
      * Initialize an EquirectangularCubemap.

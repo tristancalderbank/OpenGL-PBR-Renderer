@@ -4,6 +4,9 @@
 
 #include "model.h"
 
+/**
+ * A model paired with a position, scale, and orientation.
+ */
 class Entity {
 public:
     Entity(std::shared_ptr<Model> model);

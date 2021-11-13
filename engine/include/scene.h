@@ -5,7 +5,7 @@
 #include "entity.h"
 
 /**
- * Scene is a global object that represents all the things in our current scene.
+ * A global object that represents all the things in our current scene.
  */
 struct Scene {
     std::vector<Entity> mEntities;

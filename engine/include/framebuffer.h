@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+/**
+ * The main framebuffer.
+ */
 class Framebuffer {
 public:
     Framebuffer(int width, int height);
@@ -13,9 +16,9 @@ public:
     unsigned int getBloomColorTextureId();
 
 private:
-	int width, height;
-	unsigned int framebuffer;
-	unsigned int colorTexture;
-	unsigned int bloomColorTexture;
-	unsigned int depthStencilRenderbuffer;
+	int mWidth, mHeight;
+	unsigned int mFramebuffer;
+	unsigned int mColorTexture;
+	unsigned int mBloomColorTexture;
+	unsigned int mDepthStencilRenderbuffer;
 };

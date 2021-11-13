@@ -8,8 +8,10 @@
 
 #include "cube.h"
 
+/**
+ * A skybox created from either face textures or an existing cubemap texture.
+ */
 class Skybox {
-
 public:
     /**
      * Create a skybox by loading 6 cube face textures.
@@ -28,10 +30,10 @@ private:
     void loadCubemapTextures(std::string textureDirectoryPath);
 
 private:
-    std::unique_ptr<Cube> cube;
-    unsigned int textureId;
+    std::unique_ptr<Cube> mCube;
+    unsigned int mTextureId;
 
-	std::vector<std::string> faceTextureFileNames = {
+	std::vector<std::string> mFaceTextureFileNames = {
 		"right.jpg",
 		"left.jpg",
 		"top.jpg",

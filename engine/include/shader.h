@@ -5,6 +5,9 @@
 
 #include <glm/glm.hpp>
 
+/**
+ * A shader program created from vertex + fragment shader.
+ */
 class Shader {
 public: 
 	Shader(const std::string &vertexPath, const std::string &fragmentPath);
@@ -25,5 +28,5 @@ public:
 
 private:
     // program ID
-    unsigned int id;
+    unsigned int mId;
 };

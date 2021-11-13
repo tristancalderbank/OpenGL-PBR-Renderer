@@ -34,19 +34,19 @@ void CameraManager::update(float frameTimeDelta) {
     auto actions = mInputManager->getCurrentActions();
 
     if (actions.find(KeymapAction::DISABLE_MOUSE_CAMERA) != actions.end()) {
-        mouseCameraEnabled = false;
+        mMouseCameraEnabled = false;
         mInputManager->showMouseCursor();
         mInputManager->enableGuiMouse();
         mCamera->resetMouse();
     }
 
     if (actions.find(KeymapAction::ENABLE_MOUSE_CAMERA) != actions.end()) {
-        mouseCameraEnabled = true;
+        mMouseCameraEnabled = true;
         mInputManager->hideMouseCursor();
         mInputManager->disableGuiMouse();
     }
 
-    if (mouseCameraEnabled) {
+    if (mMouseCameraEnabled) {
         mCamera->processMouse(mInputManager->getMousePosition());
         mCamera->processActions(frameTimeDelta, actions);
     }

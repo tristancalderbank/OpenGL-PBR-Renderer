@@ -10,7 +10,7 @@
 #include "mesh.h"
 
 /**
- * A model is a collection of meshes.
+ * A collection of meshes.
  */
 class Model {
 public:
@@ -44,8 +44,8 @@ private:
 
 private:
     // data
-    std::vector<Mesh> meshes;
-    std::string directory;
-    std::map<std::string, std::shared_ptr<Texture>> texturesLoaded;
-    std::shared_ptr<Material> materialOverride;
+    std::vector<Mesh> mMeshes;
+    std::string mDirectory;
+    std::map<std::string, std::shared_ptr<Texture>> mTexturesLoaded;
+    std::shared_ptr<Material> mMaterialOverride;
 };

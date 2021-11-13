@@ -7,6 +7,9 @@
 #include "inputmanager.h"
 #include "windowmanager.h"
 
+/**
+ * Manages creating and updating cameras.
+ */
 class CameraManager {
 public:
     CameraManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<InputManager> inputManager);
@@ -23,5 +26,5 @@ private:
     std::shared_ptr<InputManager> mInputManager;
 
     std::unique_ptr<Camera> mCamera;
-    bool mouseCameraEnabled = true;
+    bool mMouseCameraEnabled = true;
 };

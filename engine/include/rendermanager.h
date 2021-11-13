@@ -27,6 +27,9 @@ enum BloomDirection {
     VERTICAL = 2
 };
 
+/**
+ * Manages rendering.
+ */
 class RenderManager {
 public:
     RenderManager(EngineConfig &engineConfig, std::shared_ptr<WindowManager> windowManager, std::shared_ptr<CameraManager> cameraManager);

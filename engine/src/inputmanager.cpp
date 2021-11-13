@@ -1,7 +1,5 @@
 #include "inputmanager.h"
 
-#include <iostream>
-
 #include "glfw3.h"
 #include <imgui/imgui.h>
 

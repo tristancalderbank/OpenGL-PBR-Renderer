@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
-
+/**
+ * Framebuffer for rendering bloom.
+ */
 class BloomFramebuffer {
 public:
     BloomFramebuffer(int width, int height);
@@ -9,8 +10,6 @@ public:
     void bind();
     void resize(int width, int height);
     void setMipLevel(int mipLevel);
-    int getMipLevel();
-    unsigned int getFramebufferId();
     unsigned int getColorTextureId();
 
 private:

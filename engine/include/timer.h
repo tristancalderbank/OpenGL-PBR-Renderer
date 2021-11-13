@@ -3,6 +3,9 @@
 #include <chrono>
 #include <iostream>
 
+/**
+ * Class for timing anything.
+ */
 class Timer {
 public:
     Timer();

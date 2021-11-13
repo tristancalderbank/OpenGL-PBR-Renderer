@@ -11,7 +11,7 @@
 #include "shader.h"
 
 /**
- * A unit cube textured with an equirectangular HDR image.
+ * A unit cube model textured with an equirectangular HDR image.
  */
 class HDRICube {
 

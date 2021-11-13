@@ -15,8 +15,8 @@ HDRTexture::HDRTexture(const std::string &path) {
         return;
     }
 
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glGenTextures(1, &mId);
+    glBindTexture(GL_TEXTURE_2D, mId);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data);
 
@@ -26,4 +26,9 @@ HDRTexture::HDRTexture(const std::string &path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     stbi_image_free(data);
+}
+
+unsigned int
+HDRTexture::getId() {
+    return mId;
 }

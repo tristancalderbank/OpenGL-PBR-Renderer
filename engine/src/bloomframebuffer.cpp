@@ -1,5 +1,7 @@
 #include "bloomframebuffer.h"
 
+#include <cmath>
+
 #include <glad/glad.h>
 
 BloomFramebuffer::BloomFramebuffer(int width, int height) : mWidth(width), mHeight(height) {}
@@ -54,16 +56,6 @@ BloomFramebuffer::setMipLevel(int mipLevel) {
     glBindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTextureId, mipLevel);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-int
-BloomFramebuffer::getMipLevel() {
-    return mMipLevel;
-}
-
-unsigned int
-BloomFramebuffer::getFramebufferId() {
-    return mFramebufferId;
 }
 
 unsigned int

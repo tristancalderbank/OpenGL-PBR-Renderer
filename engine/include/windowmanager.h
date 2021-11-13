@@ -11,6 +11,10 @@ struct WindowSize {
 };
 
 class InputManager;
+
+/**
+ * Manages the window.
+ */
 class WindowManager {
 public:
     WindowManager(EngineConfig &engineConfig);

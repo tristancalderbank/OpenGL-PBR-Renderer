@@ -12,13 +12,13 @@ Model::Model(std::string path, bool flipTexturesVertically) {
     loadModel(path, flipTexturesVertically);
 }
 
-Model::Model(std::string path, std::shared_ptr<Material> material, bool flipTexturesVertically) : materialOverride(material) {
+Model::Model(std::string path, std::shared_ptr<Material> material, bool flipTexturesVertically) : mMaterialOverride(material) {
     loadModel(path, flipTexturesVertically);
 }
 
 void
 Model::Draw(Shader& shader) {
-    for (auto& mesh : meshes) {
+    for (auto& mesh : mMeshes) {
         mesh.Draw(shader);
     }
 }
@@ -30,10 +30,10 @@ Model::loadModel(std::string path, bool flipTexturesVertically) {
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+        std::cout << "Error loading model: " << importer.GetErrorString() << std::endl;
     }
 
-    directory = path.substr(0, path.find_last_of('/'));
+    mDirectory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
     stbi_set_flip_vertically_on_load(true);
@@ -45,7 +45,7 @@ Model::processNode(aiNode* node, const aiScene* scene) {
     // process all of this node's meshes if it has any
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(processMesh(mesh, scene));
+        mMeshes.push_back(processMesh(mesh, scene));
     }
 
     // continue with children
@@ -61,8 +61,8 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<unsigned int> indices;
     Material material;
 
-    if (materialOverride) {
-        material = *materialOverride;
+    if (mMaterialOverride) {
+        material = *mMaterialOverride;
     }
 
     // vertices
@@ -75,7 +75,7 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         position.y = mesh->mVertices[i].y;
         position.z = mesh->mVertices[i].z;
 
-        vertex.position = position;
+        vertex.mPosition = position;
 
         // normal
         glm::vec3 normal;
@@ -83,17 +83,17 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         normal.y = mesh->mNormals[i].y;
         normal.z = mesh->mNormals[i].z;
 
-        vertex.normal = normal;
+        vertex.mNormal = normal;
 
         // texture coordinates
         if (mesh->mTextureCoords[0]) {
             glm::vec2 textureCoordinates;
             textureCoordinates.x = mesh->mTextureCoords[0][i].x;
             textureCoordinates.y = mesh->mTextureCoords[0][i].y;
-            vertex.textureCoordinates = textureCoordinates;
+            vertex.mTextureCoordinates = textureCoordinates;
         }
         else {
-            vertex.textureCoordinates = glm::vec2(0.0f, 0.0f);
+            vertex.mTextureCoordinates = glm::vec2(0.0f, 0.0f);
         }
 
         // tangents
@@ -101,14 +101,14 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         tangent.x = mesh->mTangents[0].x;
         tangent.y = mesh->mTangents[0].y;
         tangent.z = mesh->mTangents[0].z;
-        vertex.tangent = tangent;
+        vertex.mTangent = tangent;
 
         // bitangents
         glm::vec3 bitangent;
         bitangent.x = mesh->mBitangents[0].x;
         bitangent.y = mesh->mBitangents[0].y;
         bitangent.z = mesh->mBitangents[0].z;
-        vertex.bitangent = bitangent;
+        vertex.mBitangent = bitangent;
 
         vertices.push_back(vertex);
     }
@@ -123,7 +123,7 @@ Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     }
 
     // material
-    if (!materialOverride) {
+    if (!mMaterialOverride) {
         if (mesh->mMaterialIndex >= 0) {
             aiMaterial* aiMaterial = scene->mMaterials[mesh->mMaterialIndex];
 
@@ -170,8 +170,8 @@ Model::loadMaterialTexture(aiMaterial* material, aiTextureType type) {
     material->GetTexture(type, 0, &path);
 
     // check if we already have it loaded and use that if so
-    auto iterator = texturesLoaded.find(std::string(path.C_Str()));
-    if (iterator != texturesLoaded.end()) {
+    auto iterator = mTexturesLoaded.find(std::string(path.C_Str()));
+    if (iterator != mTexturesLoaded.end()) {
         return iterator->second;
     }
 
@@ -179,11 +179,11 @@ Model::loadMaterialTexture(aiMaterial* material, aiTextureType type) {
 
     std::cout << "Process material: " << path.C_Str() << std::endl;
 
-    texture->id = textureFromFile(path.C_Str(), directory, type);
-    texture->path = path.C_Str();
+    texture->mId = textureFromFile(path.C_Str(), mDirectory, type);
+    texture->mPath = path.C_Str();
 
     // cache it for future lookups
-    texturesLoaded.insert(std::pair<std::string, std::shared_ptr<Texture>>(path.C_Str(), texture));
+    mTexturesLoaded.insert(std::pair<std::string, std::shared_ptr<Texture>>(path.C_Str(), texture));
 
     return texture;
 }

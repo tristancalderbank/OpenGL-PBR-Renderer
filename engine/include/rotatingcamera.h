@@ -4,8 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "imgui/imgui.h"
 
+/**
+ * A camera that rotates in a circle around a point.
+ */
 class RotatingCamera {
-
 public:
     RotatingCamera(
         glm::vec3 up,
@@ -25,15 +27,15 @@ private:
     float getAspectRatio();
 
 private:
-    float time = 0.0f;
-    float timePerCircle = 10;
-    float radius = 4.0f;
+    float mTime = 0.0f;
+    float mTimePerCircle = 10;
+    float mRadius = 4.0f;
     // view matrix stuff
-	glm::vec3 up;
-	glm::vec3 position = glm::vec3(3.0f, 1.0f, 3.0f);
+	glm::vec3 mUp;
+	glm::vec3 mPosition = glm::vec3(3.0f, 1.0f, 3.0f);
     // projection matrix stuff
-    float fov = 45.0f;
-    int windowDimensions[2] = { 800, 600 }; 
-    float zNear = 0.1f;
-    float zFar = 100.0f;
+    float mFov = 45.0f;
+    int mWindowDimensions[2] = { 800, 600 };
+    float mZNear = 0.1f;
+    float mZFar = 100.0f;
 };

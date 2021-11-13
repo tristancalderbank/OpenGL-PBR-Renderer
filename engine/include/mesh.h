@@ -26,14 +26,14 @@ public:
     void Draw(Shader& shader);
 
 public: 
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	Material material;
+	std::vector<Vertex> mVertices;
+	std::vector<unsigned int> mIndices;
+	Material mMaterial;
 
 private:
 	void init();
 
 private:
     // OpenGL data structures
-    unsigned int VAO, VBO, EBO;
+    unsigned int mVAO, mVBO, mEBO;
 };

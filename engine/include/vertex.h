@@ -1,9 +1,12 @@
 #pragma once
 
+/**
+ * Vertex attributes.
+ */
 struct Vertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 textureCoordinates;
-    glm::vec3 tangent;
-    glm::vec3 bitangent;
+    glm::vec3 mPosition;
+    glm::vec3 mNormal;
+    glm::vec2 mTextureCoordinates;
+    glm::vec3 mTangent;
+    glm::vec3 mBitangent;
 };

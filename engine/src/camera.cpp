@@ -4,16 +4,16 @@
 
 glm::vec3
 Camera::getDirection() {
-    float directionY = sin(pitch);
-    float directionX = cos(pitch) * cos(yaw);
-    float directionZ = cos(pitch) * sin(yaw);
+    float directionY = sin(mPitch);
+    float directionX = cos(mPitch) * cos(mYaw);
+    float directionZ = cos(mPitch) * sin(mYaw);
 
     return glm::normalize(glm::vec3(directionX, directionY, -directionZ));
 }
 
 float
 Camera::getAspectRatio() {
-    return (float) windowDimensions[0] / windowDimensions[1];
+    return (float) mWindowDimensions[0] / mWindowDimensions[1];
 }
     
 Camera::Camera(
@@ -23,98 +23,98 @@ Camera::Camera(
     float pitch,
     int windowWidth,
     int windowHeight
-) : up(up), position(position), yaw(yaw), pitch(pitch) {
-    windowDimensions[0] = windowWidth;
-    windowDimensions[1] = windowHeight;
+) : mUp(up), mPosition(position), mYaw(yaw), mPitch(pitch) {
+    mWindowDimensions[0] = windowWidth;
+    mWindowDimensions[1] = windowHeight;
 }
 
 void
 Camera::setWindowDimensions(const WindowSize &windowSize) {
-    windowDimensions[0] = windowSize.width;
-    windowDimensions[1] = windowSize.height;
+    mWindowDimensions[0] = windowSize.width;
+    mWindowDimensions[1] = windowSize.height;
 }
 
 glm::vec3
 Camera::getPosition() {
-    return position;
+    return mPosition;
 }
 
 glm::mat4
 Camera::getViewMatrix() {
-    return glm::lookAt(position, position + getDirection(), up);
+    return glm::lookAt(mPosition, mPosition + getDirection(), mUp);
 }
 
 glm::mat4
 Camera::getProjectionMatrix() {
-    glm::mat4 projection = glm::perspective(glm::radians(fov), getAspectRatio(), zNear, zFar);
+    glm::mat4 projection = glm::perspective(glm::radians(mFov), getAspectRatio(), mZNear, mZFar);
     return projection;
 }
 
 void
 Camera::processActions(float frameTimeDelta, const std::set<KeymapAction>& actions) {
-    float normalizedSpeed = speed * frameTimeDelta;
+    float normalizedSpeed = mSpeed * frameTimeDelta;
 
     if (actions.find(KeymapAction::MOVE_FORWARD) != actions.end()) {
-        position += normalizedSpeed * getDirection();
+        mPosition += normalizedSpeed * getDirection();
     }
 
     if (actions.find(KeymapAction::MOVE_BACKWARD) != actions.end()) {
-        position -= normalizedSpeed * getDirection();
+        mPosition -= normalizedSpeed * getDirection();
     }
 
     if (actions.find(KeymapAction::MOVE_LEFT) != actions.end()) {
-        position -= normalizedSpeed * glm::cross(getDirection(), up);
+        mPosition -= normalizedSpeed * glm::cross(getDirection(), mUp);
     }
 
     if (actions.find(KeymapAction::MOVE_RIGHT) != actions.end()) {
-        position += normalizedSpeed * glm::cross(getDirection(), up);
+        mPosition += normalizedSpeed * glm::cross(getDirection(), mUp);
     }
 
     if (actions.find(KeymapAction::MOVE_UP) != actions.end()) {
-        position += normalizedSpeed * up;
+        mPosition += normalizedSpeed * mUp;
     }
 
     if (actions.find(KeymapAction::MOVE_DOWN) != actions.end()) {
-        position -= normalizedSpeed * up;
+        mPosition -= normalizedSpeed * mUp;
     }
 }
 
 void
 Camera::processMouse(const MousePosition &mousePosition) {
 
-    if (!initialMousePositionSet) {
-        lastMouseX = mousePosition.x;
-        lastMouseY = mousePosition.y;
-        initialMousePositionSet = true;
+    if (!mInitialMousePositionSet) {
+        mLastMouseX = mousePosition.x;
+        mLastMouseY = mousePosition.y;
+        mInitialMousePositionSet = true;
     }
 
-    float dX = lastMouseX - mousePosition.x;
-    float dY = lastMouseY - mousePosition.y;
+    float dX = mLastMouseX - mousePosition.x;
+    float dY = mLastMouseY - mousePosition.y;
 
-    lastMouseX = mousePosition.x;
-    lastMouseY = mousePosition.y;
+    mLastMouseX = mousePosition.x;
+    mLastMouseY = mousePosition.y;
 
-    yaw += dX * sensitivity;
-    pitch += dY * sensitivity;
+    mYaw += dX * mSensitivity;
+    mPitch += dY * mSensitivity;
 
-    pitch = std::min(pitch, 89.0f); // can't go to 90 because of lookAt up vector won't work
-    pitch = std::max(pitch, -89.0f);
+    mPitch = std::min(mPitch, 89.0f); // can't go to 90 because of lookAt up vector won't work
+    mPitch = std::max(mPitch, -89.0f);
 }
 
 void
 Camera::resetMouse() {
-    initialMousePositionSet = false;
+    mInitialMousePositionSet = false;
 }
 
 void
 Camera::drawDebugPanel() {
     if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("View");
-        ImGui::InputFloat3("up", &up.x);
-        ImGui::InputFloat3("position", &position.x);
+        ImGui::InputFloat3("up", &mUp.x);
+        ImGui::InputFloat3("position", &mPosition.x);
 
-        float yawDegrees = glm::degrees(yaw);
-        float pitchDegrees = glm::degrees(pitch);
+        float yawDegrees = glm::degrees(mYaw);
+        float pitchDegrees = glm::degrees(mPitch);
         float aspectRatio = getAspectRatio();
 
         ImGui::InputFloat("yaw (degrees)", &yawDegrees);
@@ -123,10 +123,10 @@ Camera::drawDebugPanel() {
         ImGui::Separator();
 
         ImGui::Text("Projection");
-        ImGui::SliderFloat("fov (degrees)", &fov, 0.0f, 180.0f);
-        ImGui::InputInt2("window", windowDimensions);
+        ImGui::SliderFloat("fov (degrees)", &mFov, 0.0f, 180.0f);
+        ImGui::InputInt2("window", mWindowDimensions);
         ImGui::InputFloat("aspect ratio", &aspectRatio);
-        ImGui::DragFloat("z-plane near", &zNear, 0.01f, 0.0f, 1000.0f);
-        ImGui::DragFloat("z-plane far", &zFar, 0.01f, 0.0f, 1000.0f);
+        ImGui::DragFloat("z-plane near", &mZNear, 0.01f, 0.0f, 1000.0f);
+        ImGui::DragFloat("z-plane far", &mZFar, 0.01f, 0.0f, 1000.0f);
     }
 }

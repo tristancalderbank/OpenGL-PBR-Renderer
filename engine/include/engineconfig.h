@@ -2,6 +2,9 @@
 
 #include <string>
 
+/**
+ * Engine config accessible by all subsystems.
+ */
 struct EngineConfig {
     const char* glslVersion = "#version 330";
 
