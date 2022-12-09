@@ -1,4 +1,4 @@
-# NanoEngine
+# OpenGL-PBR-Renderer
 
 A physically-based rendering engine written in C++ using OpenGL.
 
